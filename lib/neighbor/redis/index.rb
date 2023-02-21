@@ -192,6 +192,7 @@ module Neighbor
         end
       end
 
+      # can't just remove @prefix since may be an alias
       def find_prefix_length(key)
         key[@global_prefix.length..-1].index(":") + @global_prefix.length + 1
       end
