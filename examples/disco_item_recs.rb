@@ -11,10 +11,6 @@ data = Disco.load_movielens
 recommender = Disco::Recommender.new(factors: 20)
 recommender.fit(data)
 
-# recommender.item_ids.each do |item_id|
-#   index.add(item_id, recommender.item_factors(item_id))
-# end
-
 index.add_all(recommender.item_ids, recommender.item_factors)
 
 pp index.nearest("Star Wars (1977)").map { |v| v[:id] }
