@@ -118,6 +118,12 @@ Add multiple items
 index.add_all(ids, embeddings)
 ```
 
+Get an item
+
+```ruby
+index.find(id)
+```
+
 Remove an item
 
 ```ruby
