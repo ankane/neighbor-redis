@@ -41,7 +41,7 @@ index.add(2, [2, 2, 2])
 index.add(3, [1, 1, 2])
 ```
 
-Note: IDs are stored and returned as strings (uses less total storage)
+Note: IDs are stored and returned as strings (uses less total memory)
 
 Get the nearest neighbors to an item
 
