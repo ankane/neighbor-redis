@@ -167,43 +167,37 @@ module Neighbor
 
       def search_by_blob(blob, count)
         resp = redis.call("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB]", "PARAMS", "2", "BLOB", blob, "SORTBY", "__v_score", "DIALECT", "2")
-
         resp.is_a?(Hash) ? parse_results_hash(resp) : parse_results_array(resp)
       end
 
       def parse_results_hash(resp)
-        resp["results"].each.map do |result|
-
+        prefix_length = nil
+        resp["results"].map do |result|
           key = result["id"]
           info = result["extra_attributes"]
-          score = info["__v_score"].to_f
-          distance = calculate_distance(score)
-
           prefix_length ||= find_prefix_length(key)
-
-          {
-            id: key[prefix_length..-1],
-            distance: distance
-          }
+          search_result(key, info, prefix_length)
         end
       end
 
       def parse_results_array(resp)
-        len = resp.shift
         prefix_length = nil
-        len.times.map do |i|
+        resp.shift.times.map do |i|
           key, info = resp.shift(2)
           info = info.each_slice(2).to_h
-          score = info["__v_score"].to_f
-          distance = calculate_distance(score)
-
           prefix_length ||= find_prefix_length(key)
-
-          {
-            id: key[prefix_length..-1],
-            distance: distance
-          }
+          search_result(key, info, prefix_length)
         end
+      end
+
+      def search_result(key, info, prefix_length)
+        score = info["__v_score"].to_f
+        distance = calculate_distance(score)
+
+        {
+          id: key[prefix_length..-1],
+          distance: distance
+        }
       end
 
       def calculate_distance(score)
