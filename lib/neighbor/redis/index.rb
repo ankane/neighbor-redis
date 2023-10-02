@@ -70,7 +70,7 @@ module Neighbor
         # fix for invalid value for Float(): "-nan"
         true
       rescue => e
-        raise unless e.message.include?("Unknown Index name")
+        raise unless e.message.downcase.include?("unknown index name")
         false
       end
 
@@ -167,21 +167,17 @@ module Neighbor
 
       def search_by_blob(blob, count)
         resp = redis.call("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB]", "PARAMS", "2", "BLOB", blob, "SORTBY", "__v_score", "DIALECT", "2")
-        len = resp.shift
-        prefix_length = nil
-        len.times.map do |i|
-          key, info = resp.shift(2)
-          info = info.each_slice(2).to_h
+
+        resp.is_a?(Hash) ? parse_results_hash(resp) : parse_results_array(resp)
+      end
+
+      def parse_results_hash(resp)
+        resp["results"].each.map do |result|
+
+          key = result["id"]
+          info = result["extra_attributes"]
           score = info["__v_score"].to_f
-          distance =
-            case @distance_metric
-            when "L2"
-              Math.sqrt(score)
-            when "IP"
-              (score * -1) + 1
-            else
-              score
-            end
+          distance = calculate_distance(score)
 
           prefix_length ||= find_prefix_length(key)
 
@@ -189,6 +185,35 @@ module Neighbor
             id: key[prefix_length..-1],
             distance: distance
           }
+        end
+      end
+
+      def parse_results_array(resp)
+        len = resp.shift
+        prefix_length = nil
+        len.times.map do |i|
+          key, info = resp.shift(2)
+          info = info.each_slice(2).to_h
+          score = info["__v_score"].to_f
+          distance = calculate_distance(score)
+
+          prefix_length ||= find_prefix_length(key)
+
+          {
+            id: key[prefix_length..-1],
+            distance: distance
+          }
+        end
+      end
+
+      def calculate_distance(score)
+        case @distance_metric
+        when "L2"
+          Math.sqrt(score)
+        when "IP"
+          (score * -1) + 1
+        else
+          score
         end
       end
 
