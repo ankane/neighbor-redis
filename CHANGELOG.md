@@ -1,4 +1,4 @@
-## 0.1.1 (unreleased)
+## 0.1.1 (2023-10-02)
 
 - Added support for RediSearch 2.8
 
