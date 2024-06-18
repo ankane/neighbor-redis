@@ -52,7 +52,7 @@ module Neighbor
         params = {
           "TYPE" => @float64 ? "FLOAT64" : "FLOAT32",
           "DIM" => @dimensions,
-          "DISTANCE_METRIC" => @distance_metric,
+          "DISTANCE_METRIC" => @distance_metric
         }.merge(create_params)
 
         command = ["FT.CREATE", @index_name]
