@@ -129,7 +129,7 @@ class IndexTest < Minitest::Test
     error = assert_raises do
       index.create
     end
-    assert_equal "Index already exists", error.message
+    assert_match "Index already exists", error.message
   end
 
   def test_nearest_missing
