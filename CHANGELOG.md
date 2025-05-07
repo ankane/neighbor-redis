@@ -1,4 +1,4 @@
-## 0.2.1 (unreleased)
+## 0.2.1 (2025-05-06)
 
 - Added support for Redis 8
 
