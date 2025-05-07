@@ -1,3 +1,7 @@
+## 0.2.1 (unreleased)
+
+- Added support for Redis 8
+
 ## 0.2.0 (2024-10-23)
 
 - Dropped support for Ruby < 3.1

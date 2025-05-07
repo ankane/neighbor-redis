@@ -70,7 +70,8 @@ module Neighbor
         # fix for invalid value for Float(): "-nan"
         true
       rescue => e
-        raise unless e.message.downcase.include?("unknown index name")
+        message = e.message.downcase
+        raise unless message.include?("unknown index name") || message.include?("no such index")
         false
       end
 

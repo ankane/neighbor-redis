@@ -6,10 +6,10 @@ Nearest neighbor search for Ruby and Redis
 
 ## Installation
 
-First, [install RediSearch](https://redis.io/docs/stack/search/quick_start/). With Docker, use:
+First, install Redis with the [RediSearch](https://github.com/RediSearch/RediSearch) module. With Docker, use:
 
 ```sh
-docker run -p 6379:6379 redis/redis-stack-server
+docker run -p 6379:6379 redis:8
 ```
 
 Add this line to your application’s Gemfile:

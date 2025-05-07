@@ -8,14 +8,14 @@ jobs:
         include:
           - ruby: 3.4
             gemfile: Gemfile
-            redis-stack: latest
+            redis-image: redis:8
           - ruby: 3.1
             gemfile: gemfiles/redis.gemfile
-            redis-stack: 6.2.6-v9
+            redis-image: redis/redis-stack-server:6.2.6-v9
     runs-on: ubuntu-latest
     services:
       redis:
-        image: redis/redis-stack-server:${{ matrix.redis-stack }}
+        image: ${{ matrix.redis-image }}
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
