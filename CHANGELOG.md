@@ -1,3 +1,7 @@
+## 0.2.2 (unreleased)
+
+- Added experimental support for vector sets
+
 ## 0.2.1 (2025-05-06)
 
 - Added support for Redis 8

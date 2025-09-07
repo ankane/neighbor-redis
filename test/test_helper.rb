@@ -30,4 +30,12 @@ class Minitest::Test
       assert_in_delta exp, act
     end
   end
+
+  def server_version
+    @@server_version ||= /redis_version:(\S+)/.match(redis.call("INFO"))[1]
+  end
+
+  def redis
+    Neighbor::Redis.client
+  end
 end
