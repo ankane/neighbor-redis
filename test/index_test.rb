@@ -43,6 +43,12 @@ class IndexTest < Minitest::Test
     assert_equal [2, 2, 2], index.find(1)
   end
 
+  def test_add_all
+    index = create_index("l2")
+    assert_equal [1, 1], index.add_all([1, 2], [[1, 1, 1], [2, 2, 2]])
+    assert_equal [0, 1], index.add_all([1, 3], [[1, 1, 1], [1, 1, 2]])
+  end
+
   def test_search
     index = create_index("l2")
     add_items(index)
