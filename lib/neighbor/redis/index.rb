@@ -59,12 +59,15 @@ module Neighbor
         command.push("ON", "JSON") if @json
         command.push("PREFIX", "1", @prefix, "SCHEMA")
         command.push("$.v", "AS") if @json
-        command.push("v", "VECTOR", @algorithm, params.size * 2, params)
-        ft_command { redis.call(*command) }
+        command.push("v", "VECTOR", @algorithm, params.size * 2)
+        params.each do |k, v|
+          command.push(k, v)
+        end
+        run_command(*command)
       end
 
       def exists?
-        redis.call("FT.INFO", @index_name)
+        run_command("FT.INFO", @index_name)
         true
       rescue ArgumentError
         # fix for invalid value for Float(): "-nan"
@@ -103,7 +106,7 @@ module Neighbor
       end
 
       def remove_all(ids)
-        redis.call("DEL", ids.map { |id| item_key(id) })
+        run_command("DEL", *ids.map { |id| item_key(id) })
       end
 
       def search(vector, count: 5)
@@ -114,20 +117,20 @@ module Neighbor
 
       def find(id)
         if @json
-          s = redis.call("JSON.GET", item_key(id), "$.v")
+          s = run_command("JSON.GET", item_key(id), "$.v")
           JSON.parse(s)[0] if s
         else
-          from_binary(redis.call("HGET", item_key(id), "v"))
+          from_binary(run_command("HGET", item_key(id), "v"))
         end
       end
 
       def nearest(id, count: 5)
         vector =
           if @json
-            s = redis.call("JSON.GET", item_key(id), "$.v")
+            s = run_command("JSON.GET", item_key(id), "$.v")
             to_binary(JSON.parse(s)[0]) if s
           else
-            redis.call("HGET", item_key(id), "v")
+            run_command("HGET", item_key(id), "v")
           end
 
         unless vector
@@ -143,7 +146,7 @@ module Neighbor
       end
 
       def promote(alias_name)
-        redis.call("FT.ALIASUPDATE", index_name(alias_name), @index_name)
+        run_command("FT.ALIASUPDATE", index_name(alias_name), @index_name)
       end
 
       private
@@ -167,7 +170,7 @@ module Neighbor
       end
 
       def search_by_blob(blob, count)
-        resp = redis.call("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB]", "PARAMS", "2", "BLOB", blob, "SORTBY", "__v_score", "DIALECT", "2")
+        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB]", "PARAMS", "2", "BLOB", blob, "SORTBY", "__v_score", "DIALECT", "2")
         resp.is_a?(Hash) ? parse_results_hash(resp) : parse_results_array(resp)
       end
 
@@ -218,14 +221,14 @@ module Neighbor
       end
 
       def drop_index
-        redis.call("FT.DROPINDEX", @index_name)
+        run_command("FT.DROPINDEX", @index_name)
       end
 
       def drop_keys
         cursor = 0
         begin
-          cursor, keys = redis.call("SCAN", cursor, "MATCH", "#{@prefix}*", "COUNT", 100)
-          redis.call("DEL", keys) if keys.any?
+          cursor, keys = run_command("SCAN", cursor, "MATCH", "#{@prefix}*", "COUNT", 100)
+          run_command("DEL", *keys) if keys.any?
         end while cursor != "0"
       end
 
@@ -241,12 +244,14 @@ module Neighbor
         @pack_format ||= @float64 ? "d#{@dimensions}" : "f#{@dimensions}"
       end
 
-      # just use for create for now
-      def ft_command
-        yield
+      def run_command(*args)
+        if args.any? { |v| !(v.is_a?(String) || v.is_a?(Integer)) }
+          raise TypeError, "Unexpected argument type"
+        end
+        redis.call_v(args)
       rescue => e
         raise Error, "RediSearch not installed" if e.message.include?("ERR unknown command 'FT.")
-        raise
+        raise e
       end
 
       def redis
