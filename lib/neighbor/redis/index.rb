@@ -122,12 +122,6 @@ module Neighbor
         run_command("DEL", *ids.map { |id| item_key(id) })
       end
 
-      def search(vector, count: 5)
-        check_dimensions(vector)
-
-        search_by_blob(to_binary(vector), count)
-      end
-
       def find(id)
         if @json
           s = run_command("JSON.GET", item_key(id), "$.v")
@@ -154,14 +148,20 @@ module Neighbor
         search_by_blob(vector, count + 1).reject { |v| v[:id] == id.to_s }.first(count)
       end
 
-      def drop
-        drop_index
-        drop_keys
+      def search(vector, count: 5)
+        check_dimensions(vector)
+
+        search_by_blob(to_binary(vector), count)
       end
 
       def promote(alias_name)
         run_command("FT.ALIASUPDATE", index_name(alias_name), @index_name)
         nil
+      end
+
+      def drop
+        drop_index
+        drop_keys
       end
 
       private

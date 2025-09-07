@@ -12,6 +12,22 @@ class IndexTest < Minitest::Test
     assert_nil index.create
   end
 
+  def test_create_invalid_name
+    error = assert_raises(ArgumentError) do
+      Neighbor::Redis::HNSWIndex.create("items:", dimensions: 3, distance: "l2")
+    end
+    assert_equal "Invalid name", error.message
+  end
+
+  def test_create_exists
+    index = create_index
+
+    error = assert_raises do
+      index.create
+    end
+    assert_match "Index already exists", error.message
+  end
+
   def test_exists
     index = Neighbor::Redis::HNSWIndex.new("items", dimensions: 3, distance: "l2")
     assert_equal false, index.exists?
@@ -49,19 +65,34 @@ class IndexTest < Minitest::Test
     assert_equal [2, 2, 2], index.find(1)
   end
 
+  def test_add_different_dimensions
+    index = create_index
+    error = assert_raises(ArgumentError) do
+      index.add(4, [1, 2])
+    end
+    assert_equal "expected 3 dimensions", error.message
+  end
+
   def test_add_all
     index = create_index
     assert_equal [true, true], index.add_all([1, 2], [[1, 1, 1], [2, 2, 2]])
     assert_equal [false, true], index.add_all([1, 3], [[1, 1, 1], [1, 1, 2]])
   end
 
-  def test_find
+  def test_add_all_different_dimensions
     index = create_index
-    add_items(index)
-    assert_elements_in_delta [1, 1, 1], index.find(1)
-    assert_elements_in_delta [2, 2, 2], index.find(2)
-    assert_elements_in_delta [1, 1, 2], index.find(3)
-    assert_nil index.find(4)
+    error = assert_raises(ArgumentError) do
+      index.add_all([4], [[1, 2]])
+    end
+    assert_equal "expected 3 dimensions", error.message
+  end
+
+  def test_add_all_different_sizes
+    index = create_index
+    error = assert_raises(ArgumentError) do
+      index.add_all([1, 2], [[1, 2, 3]])
+    end
+    assert_equal "different sizes", error.message
   end
 
   def test_remove
@@ -81,7 +112,16 @@ class IndexTest < Minitest::Test
     assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
   end
 
-  def test_l2
+  def test_find
+    index = create_index
+    add_items(index)
+    assert_elements_in_delta [1, 1, 1], index.find(1)
+    assert_elements_in_delta [2, 2, 2], index.find(2)
+    assert_elements_in_delta [1, 1, 2], index.find(3)
+    assert_nil index.find(4)
+  end
+
+  def test_nearest_l2
     index = create_index("l2")
     add_items(index)
     result = index.nearest(1)
@@ -89,7 +129,7 @@ class IndexTest < Minitest::Test
     assert_elements_in_delta [1, 1.7320507764816284], result.map { |v| v[:distance] }
   end
 
-  def test_inner_product
+  def test_nearest_inner_product
     index = create_index("inner_product")
     add_items(index)
     result = index.nearest(1)
@@ -97,12 +137,20 @@ class IndexTest < Minitest::Test
     assert_elements_in_delta [6, 4], result.map { |v| v[:distance] }
   end
 
-  def test_cosine
+  def test_nearest_cosine
     index = create_index("cosine")
     add_items(index)
     result = index.nearest(1)
     assert_equal [2, 3], result.map { |v| v[:id].to_i }
     assert_elements_in_delta [0, 0.05719095841050148], result.map { |v| v[:distance] }
+  end
+
+  def test_nearest_missing
+    index = create_index
+    error = assert_raises(Neighbor::Redis::Error) do
+      index.nearest(4)
+    end
+    assert_equal "Could not find item 4", error.message
   end
 
   def test_search
@@ -111,6 +159,14 @@ class IndexTest < Minitest::Test
     result = index.search([1, 1, 1])
     assert_equal [1, 3, 2], result.map { |v| v[:id].to_i }
     assert_elements_in_delta [0, 1, 1.7320507764816284], result.map { |v| v[:distance] }
+  end
+
+  def test_search_different_dimensions
+    index = create_index
+    error = assert_raises(ArgumentError) do
+      index.search([1, 2])
+    end
+    assert_equal "expected 3 dimensions", error.message
   end
 
   def test_flat
@@ -171,70 +227,6 @@ class IndexTest < Minitest::Test
       index.drop
     end
     assert_match "no such index", error.message
-  end
-
-  def test_invalid_name
-    error = assert_raises(ArgumentError) do
-      Neighbor::Redis::HNSWIndex.create("items:", dimensions: 3, distance: "l2")
-    end
-    assert_equal "Invalid name", error.message
-  end
-
-  def test_index_exists
-    index = create_index
-
-    error = assert_raises do
-      index.create
-    end
-    assert_match "Index already exists", error.message
-  end
-
-  def test_nearest_missing
-    index = create_index
-    error = assert_raises(Neighbor::Redis::Error) do
-      index.nearest(4)
-    end
-    assert_equal "Could not find item 4", error.message
-  end
-
-  def test_find_missing
-    index = create_index
-    error = assert_raises(Neighbor::Redis::Error) do
-      index.nearest(4)
-    end
-    assert_equal "Could not find item 4", error.message
-  end
-
-  def test_add_invalid_dimensions
-    index = create_index
-    error = assert_raises(ArgumentError) do
-      index.add(4, [1, 2])
-    end
-    assert_equal "expected 3 dimensions", error.message
-  end
-
-  def test_add_all_invalid_dimensions
-    index = create_index
-    error = assert_raises(ArgumentError) do
-      index.add_all([4], [[1, 2]])
-    end
-    assert_equal "expected 3 dimensions", error.message
-  end
-
-  def test_add_all_different_sizes
-    index = create_index
-    error = assert_raises(ArgumentError) do
-      index.add_all([1, 2], [[1, 2, 3]])
-    end
-    assert_equal "different sizes", error.message
-  end
-
-  def test_search_invalid_dimensions
-    index = create_index
-    error = assert_raises(ArgumentError) do
-      index.search([1, 2])
-    end
-    assert_equal "expected 3 dimensions", error.message
   end
 
   private
