@@ -30,6 +30,14 @@ class VectorSetTest < Minitest::Test
     assert_equal ({"category" => "B"}), result[1][:attributes]
   end
 
+  def test_nearest_by_id_missing
+    add_items(vector_set)
+    error = assert_raises do
+      vector_set.nearest_by_id(4)
+    end
+    assert_match "element not found in set", error.message
+  end
+
   def test_nearest_by_vector
     add_items(vector_set)
     result = vector_set.nearest_by_vector([1, 1, 1])
