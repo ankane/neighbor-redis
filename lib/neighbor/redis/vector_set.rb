@@ -44,7 +44,7 @@ module Neighbor
         check_dimensions(vector)
         count = count.to_i
 
-        redis.call("VSIM", key, "FP32", to_binary(vector), "WITHSCORES", "COUNT", count).filter_map do |k, v|
+        redis.call("VSIM", key, "FP32", to_binary(vector), "WITHSCORES", "COUNT", count).map do |k, v|
           {id: k, score: v}
         end
       end
