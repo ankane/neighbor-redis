@@ -47,6 +47,18 @@ module Neighbor
         a ? JSON.parse(a) : nil
       end
 
+      def update_attributes(id, attributes)
+        id = item_id(id)
+
+        redis.call("VSETATTR", key, id, JSON.generate(attributes))
+      end
+
+      def remove_attributes(id)
+        id = item_id(id)
+
+        redis.call("VSETATTR", key, id, "")
+      end
+
       def nearest_by_id(id, count: 5, with_attributes: false)
         id = item_id(id)
         count = count.to_i

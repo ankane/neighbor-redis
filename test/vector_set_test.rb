@@ -40,6 +40,25 @@ class VectorSetTest < Minitest::Test
     assert_nil vector_set.find_attributes(4)
   end
 
+  def test_update_attributes
+    vector_set.add(1, [1, 1, 1])
+    assert_nil vector_set.find_attributes(1)
+
+    assert_equal true, vector_set.update_attributes(1, {"category" => "A"})
+    assert_equal ({"category" => "A"}), vector_set.find_attributes(1)
+
+    assert_equal true, vector_set.update_attributes(1, {"year" => 2025})
+    assert_equal ({"year" => 2025}), vector_set.find_attributes(1)
+
+    assert_equal true, vector_set.update_attributes(1, {})
+    assert_empty vector_set.find_attributes(1)
+
+    assert_equal true, vector_set.remove_attributes(1)
+    assert_nil vector_set.find_attributes(1)
+
+    assert_equal false, vector_set.remove_attributes(2)
+  end
+
   def test_member
     add_items(vector_set)
     assert_equal true, vector_set.member?(2)
@@ -64,7 +83,7 @@ class VectorSetTest < Minitest::Test
 
     result = vector_set.nearest_by_id(1, with_attributes: true)
     assert_empty result[0][:attributes]
-    assert_equal "B", result[1][:attributes]["category"]
+    assert_equal ({"category" => "B"}), result[1][:attributes]
   end
 
   def test_nearest_by_vector_attributes
@@ -73,9 +92,9 @@ class VectorSetTest < Minitest::Test
     vector_set.add(3, [1, 1, 0])
 
     result = vector_set.nearest_by_vector([1, 1, 1], with_attributes: true)
-    assert_equal "A", result[0][:attributes]["category"]
+    assert_equal ({"category" => "A"}), result[0][:attributes]
     assert_empty result[1][:attributes]
-    assert_equal "B", result[2][:attributes]["category"]
+    assert_equal ({"category" => "B"}), result[2][:attributes]
   end
 
   def test_info
