@@ -12,6 +12,13 @@ class IndexTest < Minitest::Test
     assert_nil index.create
   end
 
+  def test_exists
+    index = Neighbor::Redis::HNSWIndex.new("items", dimensions: 3, distance: "l2")
+    assert_equal false, index.exists?
+    index.create
+    assert_equal true, index.exists?
+  end
+
   def test_info
     index = create_index
     info = index.info
