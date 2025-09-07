@@ -2,7 +2,7 @@
 
 Nearest neighbor search for Ruby and Redis
 
-Supports [RediSearch](https://redis.io/docs/latest/develop/ai/search-and-query/vectors/) and [vector sets](https://redis.io/docs/latest/develop/data-types/vector-sets/) [unreleased]
+Supports [RediSearch indexes](https://redis.io/docs/latest/develop/ai/search-and-query/vectors/) and [vector sets](https://redis.io/docs/latest/develop/data-types/vector-sets/) [unreleased]
 
 [![Build Status](https://github.com/ankane/neighbor-redis/actions/workflows/build.yml/badge.svg)](https://github.com/ankane/neighbor-redis/actions)
 
