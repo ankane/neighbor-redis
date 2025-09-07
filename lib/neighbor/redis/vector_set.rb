@@ -55,6 +55,10 @@ module Neighbor
         end
       end
 
+      def count
+        redis.call("VCARD", key)
+      end
+
       def drop
         redis.call("DEL", key)
       end
