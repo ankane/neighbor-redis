@@ -1,6 +1,7 @@
-## 0.2.2 (unreleased)
+## 0.3.0 (unreleased)
 
 - Added experimental support for vector sets
+- Dropped support for Ruby < 3.2
 
 ## 0.2.1 (2025-05-06)
 
