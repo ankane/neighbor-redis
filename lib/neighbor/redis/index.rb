@@ -133,7 +133,8 @@ module Neighbor
           s = run_command("JSON.GET", item_key(id), "$.v")
           JSON.parse(s)[0] if s
         else
-          from_binary(run_command("HGET", item_key(id), "v"))
+          s = run_command("HGET", item_key(id), "v")
+          from_binary(s) if s
         end
       end
 

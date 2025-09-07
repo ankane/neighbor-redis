@@ -42,6 +42,45 @@ class IndexTest < Minitest::Test
     assert_equal 2, index.count
   end
 
+  def test_add
+    index = create_index
+    assert_equal true, index.add(1, [1, 1, 1])
+    assert_equal false, index.add(1, [2, 2, 2])
+    assert_equal [2, 2, 2], index.find(1)
+  end
+
+  def test_add_all
+    index = create_index
+    assert_equal [true, true], index.add_all([1, 2], [[1, 1, 1], [2, 2, 2]])
+    assert_equal [false, true], index.add_all([1, 3], [[1, 1, 1], [1, 1, 2]])
+  end
+
+  def test_find
+    index = create_index
+    add_items(index)
+    assert_elements_in_delta [1, 1, 1], index.find(1)
+    assert_elements_in_delta [2, 2, 2], index.find(2)
+    assert_elements_in_delta [1, 1, 2], index.find(3)
+    assert_nil index.find(4)
+  end
+
+  def test_remove
+    index = create_index("l2")
+    add_items(index)
+    assert_equal true, index.remove(2)
+    assert_equal false, index.remove(4)
+    assert_equal 2, index.count
+    assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+  end
+
+  def test_remove_all
+    index = create_index("l2")
+    add_items(index)
+    assert_equal 1, index.remove_all([2, 4])
+    assert_equal 2, index.count
+    assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+  end
+
   def test_l2
     index = create_index("l2")
     add_items(index)
@@ -66,54 +105,12 @@ class IndexTest < Minitest::Test
     assert_elements_in_delta [0, 0.05719095841050148], result.map { |v| v[:distance] }
   end
 
-  def test_add
-    index = create_index
-    assert_equal true, index.add(1, [1, 1, 1])
-    assert_equal false, index.add(1, [2, 2, 2])
-    assert_equal [2, 2, 2], index.find(1)
-  end
-
-  def test_add_all
-    index = create_index
-    assert_equal [true, true], index.add_all([1, 2], [[1, 1, 1], [2, 2, 2]])
-    assert_equal [false, true], index.add_all([1, 3], [[1, 1, 1], [1, 1, 2]])
-  end
-
   def test_search
     index = create_index("l2")
     add_items(index)
     result = index.search([1, 1, 1])
     assert_equal [1, 3, 2], result.map { |v| v[:id].to_i }
     assert_elements_in_delta [0, 1, 1.7320507764816284], result.map { |v| v[:distance] }
-  end
-
-  def test_remove
-    index = create_index("l2")
-    add_items(index)
-    assert_equal true, index.remove(2)
-    assert_equal false, index.remove(4)
-    assert_equal 2, index.count
-    assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
-  end
-
-  def test_remove_all
-    index = create_index("l2")
-    add_items(index)
-    assert_equal 1, index.remove_all([2, 4])
-    assert_equal 2, index.count
-    assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
-  end
-
-  def test_drop
-    index = create_index
-    assert_equal true, index.exists?
-    assert_nil index.drop
-    assert_equal false, index.exists?
-
-    error = assert_raises do
-      index.drop
-    end
-    assert_match "no such index", error.message
   end
 
   def test_flat
@@ -162,6 +159,18 @@ class IndexTest < Minitest::Test
 
     index = Neighbor::Redis::HNSWIndex.new("new-items", dimensions: 3, distance: "l2")
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+  end
+
+  def test_drop
+    index = create_index
+    assert_equal true, index.exists?
+    assert_nil index.drop
+    assert_equal false, index.exists?
+
+    error = assert_raises do
+      index.drop
+    end
+    assert_match "no such index", error.message
   end
 
   def test_invalid_name
