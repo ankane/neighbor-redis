@@ -29,6 +29,18 @@ class VectorSetTest < Minitest::Test
     assert_nil vector_set.find(4)
   end
 
+  def test_member
+    add_items(vector_set)
+    assert_equal true, vector_set.member?(2)
+    assert_equal false, vector_set.member?(4)
+  end
+
+  def test_include
+    add_items(vector_set)
+    assert_equal true, vector_set.include?(2)
+    assert_equal false, vector_set.include?(4)
+  end
+
   def test_count
     add_items(vector_set)
     assert_equal 3, vector_set.count

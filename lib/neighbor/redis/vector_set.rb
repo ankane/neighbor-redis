@@ -55,6 +55,13 @@ module Neighbor
         end
       end
 
+      def member?(id)
+        id = item_id(id)
+
+        redis.call("VISMEMBER", key, id)
+      end
+      alias_method :include?, :member?
+
       def count
         redis.call("VCARD", key)
       end
