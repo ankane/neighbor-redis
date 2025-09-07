@@ -94,12 +94,12 @@ module Neighbor
         bool_result(run_command("VSETATTR", key, id, ""))
       end
 
-      def nearest_by_id(id, count: 5, with_attributes: false, exact: false)
+      def nearest_by_id(id, count: 5, with_attributes: false, ef: nil, exact: false)
         id = item_id(id)
         count = count.to_i
 
         result =
-          nearest_command(["ELE", id], count: count + 1, with_attributes:, exact:).filter_map do |k, v|
+          nearest_command(["ELE", id], count: count + 1, with_attributes:, ef:, exact:).filter_map do |k, v|
             if k != id
               nearest_result(k, v, with_attributes:)
             end
@@ -108,10 +108,10 @@ module Neighbor
       end
       alias_method :nearest, :nearest_by_id
 
-      def nearest_by_vector(vector, count: 5, with_attributes: false, exact: false)
+      def nearest_by_vector(vector, count: 5, with_attributes: false, ef: nil, exact: false)
         count = count.to_i
 
-        nearest_command(["FP32", to_binary(vector)], count:, with_attributes:, exact:).map do |k, v|
+        nearest_command(["FP32", to_binary(vector)], count:, with_attributes:, ef:, exact:).map do |k, v|
           nearest_result(k, v, with_attributes:)
         end
       end
@@ -152,10 +152,14 @@ module Neighbor
         vector.pack("e*")
       end
 
-      def nearest_command(args, count:, with_attributes:, exact:)
+      def nearest_command(args, count:, with_attributes:, ef:, exact:)
         args << "WITHATTRIBS" if with_attributes
-        args.push("EF", @ef_runtime) if @ef_runtime
+
+        ef = @ef_runtime if ef.nil?
+        args.push("EF", ef) if ef
+
         args << "TRUTH" if exact
+
         result = run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
         if result.is_a?(Array)
           if with_attributes
