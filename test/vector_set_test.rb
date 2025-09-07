@@ -70,6 +70,15 @@ class VectorSetTest < Minitest::Test
     assert_equal false, vector_set.remove_attributes(2)
   end
 
+  def test_links
+    add_items(vector_set)
+    links = vector_set.links(1)
+    assert_equal ["2", "3"], links.last.map { |v| v[:id] }
+    assert_elements_in_delta [0, 0.9082482755184174], links.last.map { |v| v[:score] }
+
+    assert_nil vector_set.links(4)
+  end
+
   def test_member
     add_items(vector_set)
     assert_equal true, vector_set.member?(2)

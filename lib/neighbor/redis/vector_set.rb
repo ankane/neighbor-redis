@@ -83,6 +83,16 @@ module Neighbor
         end
       end
 
+      def links(id)
+        id = item_id(id)
+
+        run_command("VLINKS", key, id, "WITHSCORES")&.map do |links|
+          links.map do |k, v|
+            {id: k, score: v}
+          end
+        end
+      end
+
       def member?(id)
         id = item_id(id)
 
