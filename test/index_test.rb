@@ -25,6 +25,14 @@ class IndexTest < Minitest::Test
     assert_kind_of Hash, info
   end
 
+  def test_info_missing
+    index = Neighbor::Redis::HNSWIndex.new("items", dimensions: 3, distance: "l2")
+    error = assert_raises do
+      index.info
+    end
+    assert_match "no such index", error.message
+  end
+
   def test_count
     index = create_index
     add_items(index)
