@@ -32,6 +32,21 @@ module Neighbor
         bool_result(run_command("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args))
       end
 
+      def add_all(ids, vectors)
+        ids = ids.to_a.map { |v| item_id(v) }
+        vectors = vectors.to_a
+
+        raise ArgumentError, "different sizes" if ids.size != vectors.size
+
+        result =
+          redis.pipelined do |pipeline|
+            ids.zip(vectors) do |id, vector|
+              pipeline.call("VADD", key, "FP32", to_binary(vector), id, "NOQUANT")
+            end
+          end
+        result.map { |v| bool_result(v) }
+      end
+
       def member?(id)
         id = item_id(id)
 
@@ -43,6 +58,10 @@ module Neighbor
         id = item_id(id)
 
         bool_result(run_command("VREM", key, id))
+      end
+
+      def remove_all(ids)
+        ids.map { |id| remove(id) }
       end
 
       def find(id)

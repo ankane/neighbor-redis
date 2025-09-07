@@ -53,6 +53,29 @@ class VectorSetTest < Minitest::Test
     assert_match "Vector dimension mismatch - got 2 but set has 3", error.message
   end
 
+  def test_add_all
+    assert_equal [true, true, true], vector_set.add_all([1, 2, 3], [[1, 1, 1], [-1, -1, -1], [1, 1, 0]])
+    assert_equal [false, true], vector_set.add_all([1, 4], [[2, 2, 2], [3, 3, 3]])
+    assert_equal 4, vector_set.count
+  end
+
+  def test_add_all_different_dimensions
+    error = assert_raises do
+      vector_set.add_all([1, 2], [[1, 1, 1], [1, 1]])
+    end
+    assert_match "Vector dimension mismatch - got 2 but set has 3", error.message
+
+    # non-atomic
+    assert_equal 1, vector_set.count
+  end
+
+  def test_add_all_different_sizes
+    error = assert_raises(ArgumentError) do
+      vector_set.add_all([1, 2], [[1, 1, 1]])
+    end
+    assert_equal "different sizes", error.message
+  end
+
   def test_member
     add_items(vector_set)
     assert_equal true, vector_set.member?(2)
@@ -69,6 +92,13 @@ class VectorSetTest < Minitest::Test
     add_items(vector_set)
     assert_equal true, vector_set.remove(2)
     assert_equal false, vector_set.remove(4)
+    assert_equal 2, vector_set.count
+  end
+
+  def test_remove_all
+    add_items(vector_set)
+    assert_equal [true, false], vector_set.remove_all([2, 4])
+    assert_equal 2, vector_set.count
   end
 
   def test_find
