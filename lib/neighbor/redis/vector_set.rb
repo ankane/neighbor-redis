@@ -141,7 +141,7 @@ module Neighbor
         if args.any? { |v| !(v.is_a?(String) || v.is_a?(Integer)) }
           raise TypeError, "Unexpected argument type"
         end
-        redis.call_v(args)
+        redis.call(*args)
       end
 
       def redis

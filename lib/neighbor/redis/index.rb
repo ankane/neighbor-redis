@@ -248,7 +248,7 @@ module Neighbor
         if args.any? { |v| !(v.is_a?(String) || v.is_a?(Integer)) }
           raise TypeError, "Unexpected argument type"
         end
-        redis.call_v(args)
+        redis.call(*args)
       rescue => e
         raise Error, "RediSearch not installed" if e.message.include?("ERR unknown command 'FT.")
         raise e
