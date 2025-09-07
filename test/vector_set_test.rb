@@ -21,6 +21,14 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
+  def test_find
+    add_items(vector_set)
+    assert_elements_in_delta [1, 1, 1], vector_set.find(1)
+    assert_elements_in_delta [-1, -1, -1], vector_set.find(2)
+    assert_elements_in_delta [1, 1, 0], vector_set.find(3)
+    assert_nil vector_set.find(4)
+  end
+
   private
 
   def vector_set

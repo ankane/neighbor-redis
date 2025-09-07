@@ -27,6 +27,12 @@ module Neighbor
         redis.call("VREM", key, id)
       end
 
+      def find(id)
+        id = item_id(id)
+
+        redis.call("VEMB", key, id)
+      end
+
       def nearest_by_id(id, count: 5)
         id = item_id(id)
         count = count.to_i
