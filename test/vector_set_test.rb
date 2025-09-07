@@ -150,6 +150,12 @@ class VectorSetTest < Minitest::Test
     assert_nil vector_set&.info
   end
 
+  def test_drop
+    vector_set.add(1, [1, 1, 1])
+    assert_equal true, vector_set.drop
+    assert_equal false, vector_set.drop
+  end
+
   private
 
   def vector_set

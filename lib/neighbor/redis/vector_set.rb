@@ -112,7 +112,7 @@ module Neighbor
       end
 
       def drop
-        run_command("DEL", key)
+        bool_result(run_command("DEL", key))
       end
 
       private
