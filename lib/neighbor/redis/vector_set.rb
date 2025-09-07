@@ -26,7 +26,7 @@ module Neighbor
         check_dimensions(vector)
 
         args = []
-        args.concat(["SETATTR", JSON.generate(attributes)]) if attributes
+        args.push("SETATTR", JSON.generate(attributes)) if attributes
         run_command("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args)
       end
 
