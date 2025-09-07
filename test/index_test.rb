@@ -75,8 +75,13 @@ class IndexTest < Minitest::Test
   def test_drop
     index = create_index("l2")
     assert_equal true, index.exists?
-    index.drop
+    assert_nil index.drop
     assert_equal false, index.exists?
+
+    error = assert_raises do
+      index.drop
+    end
+    assert_match "no such index", error.message
   end
 
   def test_flat
