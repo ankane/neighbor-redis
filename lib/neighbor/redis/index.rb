@@ -79,6 +79,15 @@ module Neighbor
         false
       end
 
+      # TODO symbolize keys?
+      def info
+        run_command("FT.INFO", @index_name)
+      end
+
+      def count
+        run_command("FT.INFO", @index_name)["num_docs"]
+      end
+
       def add(id, vector)
         add_all([id], [vector])[0]
       end

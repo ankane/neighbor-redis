@@ -12,6 +12,21 @@ class IndexTest < Minitest::Test
     assert_nil index.create
   end
 
+  def test_info
+    index = create_index("l2")
+    info = index.info
+    assert_kind_of Hash, info
+  end
+
+  def test_count
+    index = create_index("l2")
+    add_items(index)
+    assert_equal 3, index.count
+
+    index.remove(2)
+    assert_equal 2, index.count
+  end
+
   def test_l2
     index = create_index("l2")
     add_items(index)
