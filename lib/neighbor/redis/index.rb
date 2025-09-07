@@ -75,24 +75,24 @@ module Neighbor
         false
       end
 
-      def add(id, embedding)
-        add_all([id], [embedding])
+      def add(id, vector)
+        add_all([id], [vector])
       end
 
-      def add_all(ids, embeddings)
+      def add_all(ids, vectors)
         ids = ids.to_a
-        embeddings = embeddings.to_a
+        vectors = vectors.to_a
 
-        raise ArgumentError, "different sizes" if ids.size != embeddings.size
+        raise ArgumentError, "different sizes" if ids.size != vectors.size
 
-        embeddings.each { |e| check_dimensions(e) }
+        vectors.each { |e| check_dimensions(e) }
 
         redis.pipelined do |pipeline|
-          ids.zip(embeddings).each do |id, embedding|
+          ids.zip(vectors).each do |id, vector|
             if @json
-              pipeline.call("JSON.SET", item_key(id), "$", JSON.generate({v: embedding}))
+              pipeline.call("JSON.SET", item_key(id), "$", JSON.generate({v: vector}))
             else
-              pipeline.call("HSET", item_key(id), {v: to_binary(embedding)})
+              pipeline.call("HSET", item_key(id), {v: to_binary(vector)})
             end
           end
         end
@@ -106,10 +106,10 @@ module Neighbor
         redis.call("DEL", ids.map { |id| item_key(id) })
       end
 
-      def search(embedding, count: 5)
-        check_dimensions(embedding)
+      def search(vector, count: 5)
+        check_dimensions(vector)
 
-        search_by_blob(to_binary(embedding), count)
+        search_by_blob(to_binary(vector), count)
       end
 
       def find(id)
@@ -122,7 +122,7 @@ module Neighbor
       end
 
       def nearest(id, count: 5)
-        embedding =
+        vector =
           if @json
             s = redis.call("JSON.GET", item_key(id), "$.v")
             to_binary(JSON.parse(s)[0]) if s
@@ -130,11 +130,11 @@ module Neighbor
             redis.call("HGET", item_key(id), "v")
           end
 
-        unless embedding
+        unless vector
           raise Error, "Could not find item #{id}"
         end
 
-        search_by_blob(embedding, count + 1).reject { |v| v[:id] == id.to_s }.first(count)
+        search_by_blob(vector, count + 1).reject { |v| v[:id] == id.to_s }.first(count)
       end
 
       def drop
@@ -156,8 +156,8 @@ module Neighbor
         "neighbor-idx-#{name}"
       end
 
-      def check_dimensions(embedding)
-        if embedding.size != @dimensions
+      def check_dimensions(vector)
+        if vector.size != @dimensions
           raise ArgumentError, "expected #{@dimensions} dimensions"
         end
       end
@@ -229,8 +229,8 @@ module Neighbor
         end while cursor != "0"
       end
 
-      def to_binary(embedding)
-        embedding.to_a.pack(pack_format)
+      def to_binary(vector)
+        vector.to_a.pack(pack_format)
       end
 
       def from_binary(s)

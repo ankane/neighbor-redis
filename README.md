@@ -115,7 +115,7 @@ Neighbor::Redis::HNSWIndex.new("items-v2", **new_options)
 Add multiple items
 
 ```ruby
-index.add_all(ids, embeddings)
+index.add_all(ids, vectors)
 ```
 
 Get an item
