@@ -47,8 +47,8 @@ class VectorSetTest < Minitest::Test
     assert_equal true, vector_set.update_attributes(1, {"category" => "A"})
     assert_equal ({"category" => "A"}), vector_set.find_attributes(1)
 
-    assert_equal true, vector_set.update_attributes(1, {"year" => 2025})
-    assert_equal ({"year" => 2025}), vector_set.find_attributes(1)
+    assert_equal true, vector_set.update_attributes(1, {"quantity" => 2, "size" => 1.5})
+    assert_equal ({"quantity" => 2, "size" => 1.5}), vector_set.find_attributes(1)
 
     assert_equal true, vector_set.update_attributes(1, {})
     assert_empty vector_set.find_attributes(1)
