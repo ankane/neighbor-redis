@@ -2,6 +2,8 @@
 
 Nearest neighbor search for Ruby and Redis
 
+Supports [RediSearch](https://redis.io/docs/latest/develop/ai/search-and-query/vectors/) and [vector sets](https://redis.io/docs/latest/develop/data-types/vector-sets/) [unreleased]
+
 [![Build Status](https://github.com/ankane/neighbor-redis/actions/workflows/build.yml/badge.svg)](https://github.com/ankane/neighbor-redis/actions)
 
 ## Installation
@@ -31,6 +33,12 @@ Create an index
 ```ruby
 index = Neighbor::Redis::HNSWIndex.new("items", dimensions: 3, distance: "l2")
 index.create
+```
+
+Or [unreleased]
+
+```ruby
+index = Neighbor::Redis::VectorSet.new("items")
 ```
 
 Add items
@@ -63,6 +71,8 @@ Supported values are:
 - `inner_product`
 - `cosine`
 
+Vector sets always use `cosine` and return a similarity score between 1 and 0.
+
 ## Index Types
 
 Hierarchical Navigable Small World (HNSW)
@@ -85,6 +95,14 @@ Neighbor::Redis::FlatIndex.new(
   name,
   initial_cap: nil,
   block_size: 1024
+)
+```
+
+Vector set [unreleased]
+
+```ruby
+Neighbor::Redis::VectorSet.new(
+  name
 )
 ```
 
@@ -174,11 +192,6 @@ index.nearest("Star Wars (1977)").map { |v| v[:id] }
 ```
 
 See the [complete code](examples/disco_item_recs.rb)
-
-## Reference
-
-- [Vector search concepts](https://redis.io/docs/latest/develop/ai/search-and-query/vectors/)
-- [Vector sets](https://redis.io/docs/latest/develop/data-types/vector-sets/)
 
 ## History
 
