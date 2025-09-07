@@ -76,7 +76,7 @@ module Neighbor
         run_command("VEMB", key, id)&.map(&:to_f)
       end
 
-      def find_attributes(id)
+      def attributes(id)
         id = item_id(id)
 
         a = run_command("VGETATTR", key, id)

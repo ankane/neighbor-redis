@@ -109,37 +109,37 @@ class VectorSetTest < Minitest::Test
     assert_nil vector_set.find(4)
   end
 
-  def test_find_attributes
+  def test_attributes
     vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
     vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
     vector_set.add(3, [1, 1, 0])
 
-    assert_equal ({"category" => "A"}), vector_set.find_attributes(1)
-    assert_equal ({"category" => "B"}), vector_set.find_attributes(2)
-    assert_nil vector_set.find_attributes(3)
-    assert_nil vector_set.find_attributes(4)
+    assert_equal ({"category" => "A"}), vector_set.attributes(1)
+    assert_equal ({"category" => "B"}), vector_set.attributes(2)
+    assert_nil vector_set.attributes(3)
+    assert_nil vector_set.attributes(4)
   end
 
   def test_update_attributes
     vector_set.add(1, [1, 1, 1])
-    assert_nil vector_set.find_attributes(1)
+    assert_nil vector_set.attributes(1)
 
     assert_equal true, vector_set.update_attributes(1, {"category" => "A"})
-    assert_equal ({"category" => "A"}), vector_set.find_attributes(1)
+    assert_equal ({"category" => "A"}), vector_set.attributes(1)
 
     assert_equal true, vector_set.update_attributes(1, {"quantity" => 2, "size" => 1.5})
-    assert_equal ({"quantity" => 2, "size" => 1.5}), vector_set.find_attributes(1)
+    assert_equal ({"quantity" => 2, "size" => 1.5}), vector_set.attributes(1)
 
     assert_equal true, vector_set.update_attributes(1, {})
-    assert_empty vector_set.find_attributes(1)
+    assert_empty vector_set.attributes(1)
   end
 
   def test_remove_attributes
     vector_set.add(1, [1, 1, 1], attributes: {"category" => "A"})
-    assert_equal ({"category" => "A"}), vector_set.find_attributes(1)
+    assert_equal ({"category" => "A"}), vector_set.attributes(1)
 
     assert_equal true, vector_set.remove_attributes(1)
-    assert_nil vector_set.find_attributes(1)
+    assert_nil vector_set.attributes(1)
 
     assert_equal false, vector_set.remove_attributes(2)
   end
