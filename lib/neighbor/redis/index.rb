@@ -79,13 +79,14 @@ module Neighbor
         false
       end
 
+      # TODO fix nested
       # TODO symbolize keys?
       def info
-        run_command("FT.INFO", @index_name)
+        hash_result(run_command("FT.INFO", @index_name))
       end
 
       def count
-        run_command("FT.INFO", @index_name)["num_docs"]
+        info["num_docs"]
       end
 
       def add(id, vector)
@@ -255,6 +256,10 @@ module Neighbor
 
       def pack_format
         @pack_format ||= @float64 ? "d#{@dimensions}" : "f#{@dimensions}"
+      end
+
+      def hash_result(result)
+        result.is_a?(Array) ? result.each_slice(2).to_h : result
       end
 
       def run_command(*args)
