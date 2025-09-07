@@ -3,13 +3,16 @@ module Neighbor
     class VectorSet
       NO_DEFAULT = Object.new
 
-      def initialize(name)
+      def initialize(name, m: nil, ef_construction: nil, ef_runtime: nil)
         name = name.to_str
         if name.include?(":")
           raise ArgumentError, "Invalid name"
         end
 
         @name = name
+        @m = m&.to_i
+        @ef_construction = ef_construction&.to_i
+        @ef_runtime = ef_runtime&.to_i
       end
 
       def exists?
@@ -29,6 +32,8 @@ module Neighbor
 
         args = []
         args.push("SETATTR", JSON.generate(attributes)) if attributes
+        args.push("M", @m) if @m
+        args.push("EF", @ef_construction) if @ef_construction
         bool_result(run_command("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args))
       end
 
@@ -149,6 +154,7 @@ module Neighbor
 
       def nearest_command(args, count:, with_attributes:)
         args << "WITHATTRIBS" if with_attributes
+        args.push("EF", @ef_runtime) if @ef_runtime
         result = run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
         if result.is_a?(Array)
           if with_attributes

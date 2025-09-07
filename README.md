@@ -102,7 +102,10 @@ Vector set [unreleased]
 
 ```ruby
 Neighbor::Redis::VectorSet.new(
-  name
+  name,
+  m: 16,
+  ef_construction: 200,
+  ef_runtime: 10
 )
 ```
 
