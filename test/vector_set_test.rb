@@ -29,6 +29,17 @@ class VectorSetTest < Minitest::Test
     assert_nil vector_set.find(4)
   end
 
+  def test_find_attributes
+    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
+    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
+    vector_set.add(3, [1, 1, 0])
+
+    assert_equal ({"category" => "A"}), vector_set.find_attributes(1)
+    assert_equal ({"category" => "B"}), vector_set.find_attributes(2)
+    assert_nil vector_set.find_attributes(3)
+    assert_nil vector_set.find_attributes(4)
+  end
+
   def test_member
     add_items(vector_set)
     assert_equal true, vector_set.member?(2)
@@ -65,6 +76,24 @@ class VectorSetTest < Minitest::Test
     assert_equal "A", result[0][:attributes]["category"]
     assert_empty result[1][:attributes]
     assert_equal "B", result[2][:attributes]["category"]
+  end
+
+  def test_info
+    vector_set.add(1, [1, 1, 1])
+    info = vector_set.info
+    assert_equal "f32", info[:quant_type]
+    assert_equal 16, info[:hnsw_m]
+    assert_equal 3, info[:vector_dim]
+    assert_equal 0, info[:projection_input_dim]
+    assert_equal 1, info[:size]
+    assert_kind_of Integer, info[:max_level]
+    assert_equal 0, info[:attributes_count]
+    assert_kind_of Integer, info[:vset_uid]
+    assert_equal 1, info[:hnsw_max_node_uid]
+  end
+
+  def test_info_missing
+    assert_nil vector_set&.info
   end
 
   private

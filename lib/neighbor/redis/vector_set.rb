@@ -15,12 +15,16 @@ module Neighbor
         !redis.call("VINFO", key).nil?
       end
 
-      def add(id, vector, attributes: {})
+      def info
+        redis.call("VINFO", key)&.transform_keys { |k| k.gsub("-", "_").to_sym }
+      end
+
+      def add(id, vector, attributes: nil)
         id = item_id(id)
         check_dimensions(vector)
 
         args = []
-        args.concat(["SETATTR", JSON.generate(attributes)]) if attributes.any?
+        args.concat(["SETATTR", JSON.generate(attributes)]) if attributes
         redis.call("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args)
       end
 
@@ -34,6 +38,13 @@ module Neighbor
         id = item_id(id)
 
         redis.call("VEMB", key, id)
+      end
+
+      def find_attributes(id)
+        id = item_id(id)
+
+        a = redis.call("VGETATTR", key, id)
+        a ? JSON.parse(a) : nil
       end
 
       def nearest_by_id(id, count: 5, with_attributes: false)
