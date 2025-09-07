@@ -76,6 +76,15 @@ class VectorSetTest < Minitest::Test
     assert_equal 3, vector_set.count
   end
 
+  def test_sample
+    assert_nil vector_set.sample
+    assert_empty vector_set.sample(3)
+
+    add_items(vector_set)
+    assert_includes ["1", "2", "3"], vector_set.sample
+    assert_equal ["1", "2", "3"], vector_set.sample(3).sort
+  end
+
   def test_nearest_by_id_attributes
     vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
     vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})

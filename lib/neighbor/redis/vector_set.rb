@@ -1,6 +1,8 @@
 module Neighbor
   module Redis
     class VectorSet
+      NO_DEFAULT = Object.new
+
       def initialize(name, dimensions:)
         name = name.to_str
         if name.include?(":")
@@ -90,6 +92,13 @@ module Neighbor
 
       def count
         redis.call("VCARD", key)
+      end
+
+      def sample(n = NO_DEFAULT)
+        count = n == NO_DEFAULT ? 1 : n.to_i
+
+        result = redis.call("VRANDMEMBER", key, count)
+        n == NO_DEFAULT ? result.first : result
       end
 
       def drop
