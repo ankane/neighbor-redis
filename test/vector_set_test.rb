@@ -20,11 +20,32 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
+  def test_nearest_by_id_attributes
+    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
+    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
+    vector_set.add(3, [1, 1, 0])
+
+    result = vector_set.nearest_by_id(1, with_attributes: true)
+    assert_empty result[0][:attributes]
+    assert_equal ({"category" => "B"}), result[1][:attributes]
+  end
+
   def test_nearest_by_vector
     add_items(vector_set)
     result = vector_set.nearest_by_vector([1, 1, 1])
     assert_equal ["1", "3", "2"], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
+  end
+
+  def test_nearest_by_vector_attributes
+    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
+    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
+    vector_set.add(3, [1, 1, 0])
+
+    result = vector_set.nearest_by_vector([1, 1, 1], with_attributes: true)
+    assert_equal ({"category" => "A"}), result[0][:attributes]
+    assert_empty result[1][:attributes]
+    assert_equal ({"category" => "B"}), result[2][:attributes]
   end
 
   def test_nearest_by_vector_different_dimensions
@@ -125,27 +146,6 @@ class VectorSetTest < Minitest::Test
     add_items(vector_set)
     assert_includes ["1", "2", "3"], vector_set.sample
     assert_equal ["1", "2", "3"], vector_set.sample(3).sort
-  end
-
-  def test_nearest_by_id_attributes
-    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
-    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
-    vector_set.add(3, [1, 1, 0])
-
-    result = vector_set.nearest_by_id(1, with_attributes: true)
-    assert_empty result[0][:attributes]
-    assert_equal ({"category" => "B"}), result[1][:attributes]
-  end
-
-  def test_nearest_by_vector_attributes
-    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
-    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
-    vector_set.add(3, [1, 1, 0])
-
-    result = vector_set.nearest_by_vector([1, 1, 1], with_attributes: true)
-    assert_equal ({"category" => "A"}), result[0][:attributes]
-    assert_empty result[1][:attributes]
-    assert_equal ({"category" => "B"}), result[2][:attributes]
   end
 
   def test_info
