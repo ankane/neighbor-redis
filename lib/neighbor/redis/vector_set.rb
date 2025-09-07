@@ -39,26 +39,21 @@ module Neighbor
         id = item_id(id)
         count = count.to_i
 
-        args = []
-        args << "WITHATTRIBS" if with_attributes
         result =
-          redis.call("VSIM", key, "ELE", id, "WITHSCORES", "COUNT", count + 1, *args).filter_map do |k, v|
+          nearest(["ELE", id], count: count + 1, with_attributes:).filter_map do |k, v|
             if k != id
-              v, a = v if with_attributes
-              value = {id: k, score: v}
-              value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes
-              value
+              nearest_result(k, v, with_attributes:)
             end
           end
         result.first(count)
       end
 
-      def nearest_by_vector(vector, count: 5)
+      def nearest_by_vector(vector, count: 5, with_attributes: false)
         check_dimensions(vector)
         count = count.to_i
 
-        redis.call("VSIM", key, "FP32", to_binary(vector), "WITHSCORES", "COUNT", count).map do |k, v|
-          {id: k, score: v}
+        nearest(["FP32", to_binary(vector)], count:, with_attributes:).map do |k, v|
+          nearest_result(k, v, with_attributes:)
         end
       end
 
@@ -95,6 +90,18 @@ module Neighbor
         if vector.size != @dimensions
           raise ArgumentError, "dimension mismatch"
         end
+      end
+
+      def nearest(args, count:, with_attributes:)
+        args << "WITHATTRIBS" if with_attributes
+        redis.call("VSIM", key, args, "WITHSCORES", "COUNT", count)
+      end
+
+      def nearest_result(k, v, with_attributes:)
+        v, a = v if with_attributes
+        value = {id: k, score: v}
+        value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes
+        value
       end
 
       def redis
