@@ -3,14 +3,13 @@ module Neighbor
     class VectorSet
       NO_DEFAULT = Object.new
 
-      def initialize(name, dimensions:)
+      def initialize(name)
         name = name.to_str
         if name.include?(":")
           raise ArgumentError, "Invalid name"
         end
 
         @name = name
-        @dimensions = dimensions.to_i
       end
 
       def exists?
@@ -23,7 +22,6 @@ module Neighbor
 
       def add(id, vector, attributes: nil)
         id = item_id(id)
-        check_dimensions(vector)
 
         args = []
         args.push("SETATTR", JSON.generate(attributes)) if attributes
@@ -75,7 +73,6 @@ module Neighbor
       end
 
       def nearest_by_vector(vector, count: 5, with_attributes: false)
-        check_dimensions(vector)
         count = count.to_i
 
         nearest(["FP32", to_binary(vector)], count:, with_attributes:).map do |k, v|
@@ -127,12 +124,6 @@ module Neighbor
 
       def to_binary(vector)
         vector.pack("e*")
-      end
-
-      def check_dimensions(vector)
-        if vector.size != @dimensions
-          raise ArgumentError, "dimension mismatch"
-        end
       end
 
       def nearest(args, count:, with_attributes:)

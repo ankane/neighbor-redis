@@ -27,10 +27,26 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
+  def test_nearest_by_vector_different_dimensions
+    add_items(vector_set)
+    error = assert_raises do
+      vector_set.nearest_by_vector([1, 1])
+    end
+    assert_match "Vector dimension mismatch - got 2 but set has 3", error.message
+  end
+
   def test_add
     assert_equal true, vector_set.add(1, [1, 1, 1])
     assert_equal false, vector_set.add(1, [1, 2, 3])
     assert_equal [1, 2, 3], vector_set.find(1)
+  end
+
+  def test_add_different_dimensions
+    vector_set.add(1, [1, 1, 1])
+    error = assert_raises do
+      vector_set.add(2, [1, 1])
+    end
+    assert_match "Vector dimension mismatch - got 2 but set has 3", error.message
   end
 
   def test_find
@@ -159,7 +175,7 @@ class VectorSetTest < Minitest::Test
   private
 
   def vector_set
-    @vector_set ||= Neighbor::Redis::VectorSet.new("items", dimensions: 3)
+    @vector_set ||= Neighbor::Redis::VectorSet.new("items")
   end
 
   def add_items(vector_set)
