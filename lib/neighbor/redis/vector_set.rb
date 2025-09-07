@@ -20,6 +20,10 @@ module Neighbor
         hash_result(run_command("VINFO", key))&.transform_keys { |k| k.gsub("-", "_").to_sym }
       end
 
+      def count
+        run_command("VCARD", key)
+      end
+
       def add(id, vector, attributes: nil)
         id = item_id(id)
 
@@ -27,6 +31,13 @@ module Neighbor
         args.push("SETATTR", JSON.generate(attributes)) if attributes
         bool_result(run_command("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args))
       end
+
+      def member?(id)
+        id = item_id(id)
+
+        bool_result(run_command("VISMEMBER", key, id))
+      end
+      alias_method :include?, :member?
 
       def remove(id)
         id = item_id(id)
@@ -88,17 +99,6 @@ module Neighbor
             {id: k, score: v.to_f}
           end
         end
-      end
-
-      def member?(id)
-        id = item_id(id)
-
-        bool_result(run_command("VISMEMBER", key, id))
-      end
-      alias_method :include?, :member?
-
-      def count
-        run_command("VCARD", key)
       end
 
       def sample(n = NO_DEFAULT)
