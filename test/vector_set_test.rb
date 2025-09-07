@@ -46,6 +46,15 @@ class VectorSetTest < Minitest::Test
     assert_equal 3, vector_set.count
   end
 
+  def test_attributes
+    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
+    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
+    vector_set.add(3, [1, 1, 0])
+    result = vector_set.nearest_by_id(1, with_attributes: true)
+    assert_empty result.first[:attributes]
+    assert_equal "B", result.last[:attributes]["category"]
+  end
+
   private
 
   def vector_set

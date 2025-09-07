@@ -14,11 +14,13 @@ module Neighbor
         !redis.call("VINFO", key).nil?
       end
 
-      def add(id, vector)
+      def add(id, vector, attributes: {})
         id = item_id(id)
         check_dimensions(vector)
 
-        redis.call("VADD", key, "FP32", to_binary(vector), id, "NOQUANT")
+        args = []
+        args.concat(["SETATTR", JSON.generate(attributes)]) if attributes.any?
+        redis.call("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args)
       end
 
       def remove(id)
@@ -33,14 +35,19 @@ module Neighbor
         redis.call("VEMB", key, id)
       end
 
-      def nearest_by_id(id, count: 5)
+      def nearest_by_id(id, count: 5, with_attributes: false)
         id = item_id(id)
         count = count.to_i
 
+        args = []
+        args << "WITHATTRIBS" if with_attributes
         result =
-          redis.call("VSIM", key, "ELE", id, "WITHSCORES", "COUNT", count + 1).filter_map do |k, v|
+          redis.call("VSIM", key, "ELE", id, "WITHSCORES", "COUNT", count + 1, *args).filter_map do |k, v|
             if k != id
-              {id: k, score: v}
+              v, a = v if with_attributes
+              value = {id: k, score: v}
+              value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes
+              value
             end
           end
         result.first(count)

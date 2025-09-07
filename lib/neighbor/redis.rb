@@ -1,6 +1,9 @@
 # dependencies
 require "redis-client"
 
+# stdlib
+require "json"
+
 # modules
 require_relative "redis/index"
 require_relative "redis/flat_index"
