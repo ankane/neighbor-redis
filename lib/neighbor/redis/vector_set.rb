@@ -14,11 +14,11 @@ module Neighbor
       end
 
       def exists?
-        !redis.call("VINFO", key).nil?
+        !run_command("VINFO", key).nil?
       end
 
       def info
-        redis.call("VINFO", key)&.transform_keys { |k| k.gsub("-", "_").to_sym }
+        run_command("VINFO", key)&.transform_keys { |k| k.gsub("-", "_").to_sym }
       end
 
       def add(id, vector, attributes: nil)
@@ -27,38 +27,38 @@ module Neighbor
 
         args = []
         args.concat(["SETATTR", JSON.generate(attributes)]) if attributes
-        redis.call("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args)
+        run_command("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args)
       end
 
       def remove(id)
         id = item_id(id)
 
-        redis.call("VREM", key, id)
+        run_command("VREM", key, id)
       end
 
       def find(id)
         id = item_id(id)
 
-        redis.call("VEMB", key, id)
+        run_command("VEMB", key, id)
       end
 
       def find_attributes(id)
         id = item_id(id)
 
-        a = redis.call("VGETATTR", key, id)
+        a = run_command("VGETATTR", key, id)
         a ? JSON.parse(a) : nil
       end
 
       def update_attributes(id, attributes)
         id = item_id(id)
 
-        redis.call("VSETATTR", key, id, JSON.generate(attributes))
+        run_command("VSETATTR", key, id, JSON.generate(attributes))
       end
 
       def remove_attributes(id)
         id = item_id(id)
 
-        redis.call("VSETATTR", key, id, "")
+        run_command("VSETATTR", key, id, "")
       end
 
       def nearest_by_id(id, count: 5, with_attributes: false)
@@ -86,23 +86,23 @@ module Neighbor
       def member?(id)
         id = item_id(id)
 
-        redis.call("VISMEMBER", key, id)
+        run_command("VISMEMBER", key, id)
       end
       alias_method :include?, :member?
 
       def count
-        redis.call("VCARD", key)
+        run_command("VCARD", key)
       end
 
       def sample(n = NO_DEFAULT)
         count = n == NO_DEFAULT ? 1 : n.to_i
 
-        result = redis.call("VRANDMEMBER", key, count)
+        result = run_command("VRANDMEMBER", key, count)
         n == NO_DEFAULT ? result.first : result
       end
 
       def drop
-        redis.call("DEL", key)
+        run_command("DEL", key)
       end
 
       private
@@ -127,7 +127,7 @@ module Neighbor
 
       def nearest(args, count:, with_attributes:)
         args << "WITHATTRIBS" if with_attributes
-        redis.call("VSIM", key, args, "WITHSCORES", "COUNT", count)
+        run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
       end
 
       def nearest_result(k, v, with_attributes:)
@@ -135,6 +135,13 @@ module Neighbor
         value = {id: k, score: v}
         value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes
         value
+      end
+
+      def run_command(*args)
+        if args.any? { |v| !(v.is_a?(String) || v.is_a?(Integer)) }
+          raise ArgumentError, "Unexpected argument type"
+        end
+        redis.call_v(args)
       end
 
       def redis
