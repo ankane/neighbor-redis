@@ -75,21 +75,23 @@ module Neighbor
         count = count.to_i
 
         result =
-          nearest(["ELE", id], count: count + 1, with_attributes:).filter_map do |k, v|
+          nearest_command(["ELE", id], count: count + 1, with_attributes:).filter_map do |k, v|
             if k != id
               nearest_result(k, v, with_attributes:)
             end
           end
         result.first(count)
       end
+      alias_method :nearest, :nearest_by_id
 
       def nearest_by_vector(vector, count: 5, with_attributes: false)
         count = count.to_i
 
-        nearest(["FP32", to_binary(vector)], count:, with_attributes:).map do |k, v|
+        nearest_command(["FP32", to_binary(vector)], count:, with_attributes:).map do |k, v|
           nearest_result(k, v, with_attributes:)
         end
       end
+      alias_method :search, :nearest_by_vector
 
       def links(id)
         id = item_id(id)
@@ -126,7 +128,7 @@ module Neighbor
         vector.pack("e*")
       end
 
-      def nearest(args, count:, with_attributes:)
+      def nearest_command(args, count:, with_attributes:)
         args << "WITHATTRIBS" if with_attributes
         result = run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
         if result.is_a?(Array)
