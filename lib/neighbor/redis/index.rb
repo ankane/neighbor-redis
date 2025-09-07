@@ -64,6 +64,7 @@ module Neighbor
           command.push(k, v)
         end
         run_command(*command)
+        nil
       end
 
       def exists?
@@ -79,7 +80,7 @@ module Neighbor
       end
 
       def add(id, vector)
-        add_all([id], [vector])
+        add_all([id], [vector])[0]
       end
 
       def add_all(ids, vectors)
@@ -90,19 +91,21 @@ module Neighbor
 
         vectors.each { |e| check_dimensions(e) }
 
-        redis.pipelined do |pipeline|
-          ids.zip(vectors).each do |id, vector|
-            if @json
-              pipeline.call("JSON.SET", item_key(id), "$", JSON.generate({v: vector}))
-            else
-              pipeline.call("HSET", item_key(id), {v: to_binary(vector)})
+        result =
+          redis.pipelined do |pipeline|
+            ids.zip(vectors).each do |id, vector|
+              if @json
+                pipeline.call("JSON.SET", item_key(id), "$", JSON.generate({v: vector}))
+              else
+                pipeline.call("HSET", item_key(id), {v: to_binary(vector)})
+              end
             end
           end
-        end
+        result.map { |v| v == 1 }
       end
 
       def remove(id)
-        remove_all([id])
+        remove_all([id]) == 1
       end
 
       def remove_all(ids)
@@ -147,6 +150,7 @@ module Neighbor
 
       def promote(alias_name)
         run_command("FT.ALIASUPDATE", index_name(alias_name), @index_name)
+        nil
       end
 
       private

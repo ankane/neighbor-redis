@@ -9,7 +9,7 @@ class IndexTest < Minitest::Test
 
   def test_create
     index = Neighbor::Redis::HNSWIndex.new("items", dimensions: 3, distance: "l2")
-    assert_equal "OK", index.create
+    assert_nil index.create
   end
 
   def test_l2
@@ -38,15 +38,15 @@ class IndexTest < Minitest::Test
 
   def test_add
     index = create_index("l2")
-    assert_equal [1], index.add(1, [1, 1, 1])
-    assert_equal [0], index.add(1, [2, 2, 2])
+    assert_equal true, index.add(1, [1, 1, 1])
+    assert_equal false, index.add(1, [2, 2, 2])
     assert_equal [2, 2, 2], index.find(1)
   end
 
   def test_add_all
     index = create_index("l2")
-    assert_equal [1, 1], index.add_all([1, 2], [[1, 1, 1], [2, 2, 2]])
-    assert_equal [0, 1], index.add_all([1, 3], [[1, 1, 1], [1, 1, 2]])
+    assert_equal [true, true], index.add_all([1, 2], [[1, 1, 1], [2, 2, 2]])
+    assert_equal [false, true], index.add_all([1, 3], [[1, 1, 1], [1, 1, 2]])
   end
 
   def test_search
@@ -60,8 +60,8 @@ class IndexTest < Minitest::Test
   def test_remove
     index = create_index("l2")
     add_items(index)
-    assert_equal 1, index.remove(2)
-    assert_equal 0, index.remove(4)
+    assert_equal true, index.remove(2)
+    assert_equal false, index.remove(4)
     assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
   end
 
@@ -120,7 +120,7 @@ class IndexTest < Minitest::Test
     add_items(index)
 
     3.times do
-      assert_equal "OK", index.promote("new-items")
+      assert_nil index.promote("new-items")
     end
 
     index = Neighbor::Redis::HNSWIndex.new("new-items", dimensions: 3, distance: "l2")
