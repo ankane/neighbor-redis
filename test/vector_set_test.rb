@@ -144,75 +144,75 @@ class VectorSetTest < Minitest::Test
     assert_equal false, vector_set.remove_attributes(2)
   end
 
-  def test_nearest_by_id
+  def test_nearest
     add_items(vector_set)
-    result = vector_set.nearest_by_id(1)
+    result = vector_set.nearest(1)
     assert_equal ["3", "2"], result.map { |v| v[:id] }
     assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
-  def test_nearest_by_id_attributes
+  def test_nearest_attributes
     vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
     vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
     vector_set.add(3, [1, 1, 0])
 
-    result = vector_set.nearest_by_id(1, with_attributes: true)
+    result = vector_set.nearest(1, with_attributes: true)
     assert_empty result[0][:attributes]
     assert_equal ({"category" => "B"}), result[1][:attributes]
   end
 
-  def test_nearest_by_id_exact
+  def test_nearest_exact
     add_items(vector_set)
-    result = vector_set.nearest_by_id(1, exact: true)
+    result = vector_set.nearest(1, exact: true)
     assert_equal ["3", "2"], result.map { |v| v[:id] }
     assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
-  def test_nearest_by_id_missing
+  def test_nearest_missing
     add_items(vector_set)
     error = assert_raises do
-      vector_set.nearest_by_id(4)
+      vector_set.nearest(4)
     end
     assert_match "element not found in set", error.message
   end
 
-  def test_nearest_by_vector
+  def test_search
     add_items(vector_set)
-    result = vector_set.nearest_by_vector([1, 1, 1])
+    result = vector_set.search([1, 1, 1])
     assert_equal ["1", "3", "2"], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
-  def test_nearest_by_vector_attributes
+  def test_search_attributes
     vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
     vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
     vector_set.add(3, [1, 1, 0])
 
-    result = vector_set.nearest_by_vector([1, 1, 1], with_attributes: true)
+    result = vector_set.search([1, 1, 1], with_attributes: true)
     assert_equal ({"category" => "A"}), result[0][:attributes]
     assert_empty result[1][:attributes]
     assert_equal ({"category" => "B"}), result[2][:attributes]
   end
 
-  def test_nearest_by_vector_ef
+  def test_search_ef
     add_items(vector_set)
-    result = vector_set.nearest_by_vector([1, 1, 1], ef: 2)
+    result = vector_set.search([1, 1, 1], ef: 2)
     # still returns 3 results
     assert_equal ["1", "3", "2"], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
-  def test_nearest_by_vector_exact
+  def test_search_exact
     add_items(vector_set)
-    result = vector_set.nearest_by_vector([1, 1, 1], exact: true)
+    result = vector_set.search([1, 1, 1], exact: true)
     assert_equal ["1", "3", "2"], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
-  def test_nearest_by_vector_different_dimensions
+  def test_search_different_dimensions
     add_items(vector_set)
     error = assert_raises do
-      vector_set.nearest_by_vector([1, 1])
+      vector_set.search([1, 1])
     end
     assert_match "Vector dimension mismatch - got 2 but set has 3", error.message
   end
@@ -244,7 +244,7 @@ class VectorSetTest < Minitest::Test
   def test_options
     vector_set = Neighbor::Redis::VectorSet.new("items", m: 16, ef_construction: 200, ef_runtime: 10, epsilon: 0.5)
     add_items(vector_set)
-    result = vector_set.nearest_by_id(1)
+    result = vector_set.nearest(1)
     assert_equal ["3"], result.map { |v| v[:id] }
     assert_elements_in_delta [0.9082482755184174], result.map { |v| v[:score] }
   end

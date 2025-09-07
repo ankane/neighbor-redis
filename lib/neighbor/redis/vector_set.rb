@@ -95,7 +95,7 @@ module Neighbor
         bool_result(run_command("VSETATTR", key, id, ""))
       end
 
-      def nearest_by_id(id, count: 5, with_attributes: false, ef: nil, exact: false)
+      def nearest(id, count: 5, with_attributes: false, ef: nil, exact: false)
         id = item_id(id)
         count = count.to_i
 
@@ -107,16 +107,14 @@ module Neighbor
           end
         result.first(count)
       end
-      alias_method :nearest, :nearest_by_id
 
-      def nearest_by_vector(vector, count: 5, with_attributes: false, ef: nil, exact: false)
+      def search(vector, count: 5, with_attributes: false, ef: nil, exact: false)
         count = count.to_i
 
         nearest_command(["FP32", to_binary(vector)], count:, with_attributes:, ef:, exact:).map do |k, v|
           nearest_result(k, v, with_attributes:)
         end
       end
-      alias_method :search, :nearest_by_vector
 
       def links(id)
         id = item_id(id)
