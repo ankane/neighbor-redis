@@ -18,7 +18,7 @@ module Neighbor
       end
 
       def info
-        run_command("VINFO", key)&.transform_keys { |k| k.gsub("-", "_").to_sym }
+        hash_result(run_command("VINFO", key))&.transform_keys { |k| k.gsub("-", "_").to_sym }
       end
 
       def add(id, vector, attributes: nil)
@@ -27,19 +27,19 @@ module Neighbor
 
         args = []
         args.push("SETATTR", JSON.generate(attributes)) if attributes
-        run_command("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args)
+        bool_result(run_command("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args))
       end
 
       def remove(id)
         id = item_id(id)
 
-        run_command("VREM", key, id)
+        bool_result(run_command("VREM", key, id))
       end
 
       def find(id)
         id = item_id(id)
 
-        run_command("VEMB", key, id)
+        run_command("VEMB", key, id)&.map(&:to_f)
       end
 
       def find_attributes(id)
@@ -52,13 +52,13 @@ module Neighbor
       def update_attributes(id, attributes)
         id = item_id(id)
 
-        run_command("VSETATTR", key, id, JSON.generate(attributes))
+        bool_result(run_command("VSETATTR", key, id, JSON.generate(attributes)))
       end
 
       def remove_attributes(id)
         id = item_id(id)
 
-        run_command("VSETATTR", key, id, "")
+        bool_result(run_command("VSETATTR", key, id, ""))
       end
 
       def nearest_by_id(id, count: 5, with_attributes: false)
@@ -87,8 +87,8 @@ module Neighbor
         id = item_id(id)
 
         run_command("VLINKS", key, id, "WITHSCORES")&.map do |links|
-          links.map do |k, v|
-            {id: k, score: v}
+          hash_result(links).map do |k, v|
+            {id: k, score: v.to_f}
           end
         end
       end
@@ -96,7 +96,7 @@ module Neighbor
       def member?(id)
         id = item_id(id)
 
-        run_command("VISMEMBER", key, id)
+        bool_result(run_command("VISMEMBER", key, id))
       end
       alias_method :include?, :member?
 
@@ -137,14 +137,31 @@ module Neighbor
 
       def nearest(args, count:, with_attributes:)
         args << "WITHATTRIBS" if with_attributes
-        run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
+        result = run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
+        if result.is_a?(Array)
+          if with_attributes
+            result.each_slice(3).to_h { |v| [v[0], v[1..]] }
+          else
+            hash_result(result)
+          end
+        else
+          result
+        end
       end
 
-      def nearest_result(k, v, with_attributes:)
+      def nearest_result(k, v, with_attributes: false)
         v, a = v if with_attributes
-        value = {id: k, score: v}
+        value = {id: k, score: v.to_f}
         value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes
         value
+      end
+
+      def hash_result(result)
+        result.is_a?(Array) ? result.each_slice(2).to_h : result
+      end
+
+      def bool_result(result)
+        result == true || result == 1
       end
 
       def run_command(*args)
