@@ -13,13 +13,13 @@ class IndexTest < Minitest::Test
   end
 
   def test_info
-    index = create_index("l2")
+    index = create_index
     info = index.info
     assert_kind_of Hash, info
   end
 
   def test_count
-    index = create_index("l2")
+    index = create_index
     add_items(index)
     assert_equal 3, index.count
 
@@ -52,14 +52,14 @@ class IndexTest < Minitest::Test
   end
 
   def test_add
-    index = create_index("l2")
+    index = create_index
     assert_equal true, index.add(1, [1, 1, 1])
     assert_equal false, index.add(1, [2, 2, 2])
     assert_equal [2, 2, 2], index.find(1)
   end
 
   def test_add_all
-    index = create_index("l2")
+    index = create_index
     assert_equal [true, true], index.add_all([1, 2], [[1, 1, 1], [2, 2, 2]])
     assert_equal [false, true], index.add_all([1, 3], [[1, 1, 1], [1, 1, 2]])
   end
@@ -77,6 +77,7 @@ class IndexTest < Minitest::Test
     add_items(index)
     assert_equal true, index.remove(2)
     assert_equal false, index.remove(4)
+    assert_equal 2, index.count
     assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
   end
 
@@ -84,11 +85,12 @@ class IndexTest < Minitest::Test
     index = create_index("l2")
     add_items(index)
     assert_equal 1, index.remove_all([2, 4])
+    assert_equal 2, index.count
     assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
   end
 
   def test_drop
-    index = create_index("l2")
+    index = create_index
     assert_equal true, index.exists?
     assert_nil index.drop
     assert_equal false, index.exists?
@@ -155,7 +157,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_index_exists
-    index = create_index("l2")
+    index = create_index
 
     error = assert_raises do
       index.create
@@ -164,7 +166,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_nearest_missing
-    index = create_index("l2")
+    index = create_index
     error = assert_raises(Neighbor::Redis::Error) do
       index.nearest(4)
     end
@@ -172,7 +174,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_find_missing
-    index = create_index("l2")
+    index = create_index
     error = assert_raises(Neighbor::Redis::Error) do
       index.nearest(4)
     end
@@ -180,7 +182,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_add_invalid_dimensions
-    index = create_index("l2")
+    index = create_index
     error = assert_raises(ArgumentError) do
       index.add(4, [1, 2])
     end
@@ -188,7 +190,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_add_all_invalid_dimensions
-    index = create_index("l2")
+    index = create_index
     error = assert_raises(ArgumentError) do
       index.add_all([4], [[1, 2]])
     end
@@ -196,7 +198,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_add_all_different_sizes
-    index = create_index("l2")
+    index = create_index
     error = assert_raises(ArgumentError) do
       index.add_all([1, 2], [[1, 2, 3]])
     end
@@ -204,7 +206,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_search_invalid_dimensions
-    index = create_index("l2")
+    index = create_index
     error = assert_raises(ArgumentError) do
       index.search([1, 2])
     end
@@ -213,7 +215,8 @@ class IndexTest < Minitest::Test
 
   private
 
-  def create_index(distance, **options)
+  def create_index(distance = nil, **options)
+    distance ||= ["l2", "inner_product", "cosine"].sample
     Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: distance, **options)
   end
 
