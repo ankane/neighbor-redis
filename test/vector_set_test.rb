@@ -161,6 +161,13 @@ class VectorSetTest < Minitest::Test
     assert_equal ({"category" => "B"}), result[1][:attributes]
   end
 
+  def test_nearest_by_id_exact
+    add_items(vector_set)
+    result = vector_set.nearest_by_id(1, exact: true)
+    assert_equal ["3", "2"], result.map { |v| v[:id] }
+    assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
+  end
+
   def test_nearest_by_id_missing
     add_items(vector_set)
     error = assert_raises do
@@ -185,6 +192,13 @@ class VectorSetTest < Minitest::Test
     assert_equal ({"category" => "A"}), result[0][:attributes]
     assert_empty result[1][:attributes]
     assert_equal ({"category" => "B"}), result[2][:attributes]
+  end
+
+  def test_nearest_by_vector_exact
+    add_items(vector_set)
+    result = vector_set.nearest_by_vector([1, 1, 1], exact: true)
+    assert_equal ["1", "3", "2"], result.map { |v| v[:id] }
+    assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
   def test_nearest_by_vector_different_dimensions
