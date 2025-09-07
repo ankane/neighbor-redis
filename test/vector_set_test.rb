@@ -242,11 +242,11 @@ class VectorSetTest < Minitest::Test
   end
 
   def test_options
-    vector_set = Neighbor::Redis::VectorSet.new("items", m: 16, ef_construction: 200, ef_runtime: 10)
+    vector_set = Neighbor::Redis::VectorSet.new("items", m: 16, ef_construction: 200, ef_runtime: 10, epsilon: 0.5)
     add_items(vector_set)
     result = vector_set.nearest_by_id(1)
-    assert_equal ["3", "2"], result.map { |v| v[:id] }
-    assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
+    assert_equal ["3"], result.map { |v| v[:id] }
+    assert_elements_in_delta [0.9082482755184174], result.map { |v| v[:score] }
   end
 
   private

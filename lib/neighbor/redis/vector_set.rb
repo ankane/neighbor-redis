@@ -3,7 +3,7 @@ module Neighbor
     class VectorSet
       NO_DEFAULT = Object.new
 
-      def initialize(name, m: nil, ef_construction: nil, ef_runtime: nil)
+      def initialize(name, m: nil, ef_construction: nil, ef_runtime: nil, epsilon: nil)
         name = name.to_str
         if name.include?(":")
           raise ArgumentError, "Invalid name"
@@ -13,6 +13,7 @@ module Neighbor
         @m = m&.to_i
         @ef_construction = ef_construction&.to_i
         @ef_runtime = ef_runtime&.to_i
+        @epsilon = epsilon&.to_f
       end
 
       def exists?
@@ -158,6 +159,8 @@ module Neighbor
         ef = @ef_runtime if ef.nil?
         args.push("EF", ef) if ef
 
+        args.push("EPSILON", @epsilon) if @epsilon
+
         args << "TRUTH" if exact
 
         result = run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
@@ -188,7 +191,7 @@ module Neighbor
       end
 
       def run_command(*args)
-        if args.any? { |v| !(v.is_a?(String) || v.is_a?(Integer)) }
+        if args.any? { |v| !(v.is_a?(String) || v.is_a?(Numeric)) }
           raise TypeError, "Unexpected argument type"
         end
         redis.call(*args)

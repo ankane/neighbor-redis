@@ -105,7 +105,8 @@ Neighbor::Redis::VectorSet.new(
   name,
   m: 16,
   ef_construction: 200,
-  ef_runtime: 10
+  ef_runtime: 10,
+  epsilon: 0.01
 )
 ```
 
