@@ -7,6 +7,11 @@ class IndexTest < Minitest::Test
     index.drop if index.exists?
   end
 
+  def test_create
+    index = Neighbor::Redis::HNSWIndex.new("items", dimensions: 3, distance: "l2")
+    assert_equal "OK", index.create
+  end
+
   def test_l2
     index = create_index("l2")
     add_items(index)
@@ -33,9 +38,8 @@ class IndexTest < Minitest::Test
 
   def test_add
     index = create_index("l2")
-    3.times do |i|
-      index.add(1, [i, i, i])
-    end
+    assert_equal [1], index.add(1, [1, 1, 1])
+    assert_equal [0], index.add(1, [2, 2, 2])
     assert_equal [2, 2, 2], index.find(1)
   end
 
@@ -50,15 +54,15 @@ class IndexTest < Minitest::Test
   def test_remove
     index = create_index("l2")
     add_items(index)
-    index.remove(2)
-    index.remove(4)
+    assert_equal 1, index.remove(2)
+    assert_equal 0, index.remove(4)
     assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
   end
 
   def test_remove_all
     index = create_index("l2")
     add_items(index)
-    index.remove_all([2, 4])
+    assert_equal 1, index.remove_all([2, 4])
     assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
   end
 
@@ -110,7 +114,7 @@ class IndexTest < Minitest::Test
     add_items(index)
 
     3.times do
-      index.promote("new-items")
+      assert_equal "OK", index.promote("new-items")
     end
 
     index = Neighbor::Redis::HNSWIndex.new("new-items", dimensions: 3, distance: "l2")
