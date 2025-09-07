@@ -10,14 +10,14 @@ class VectorSetTest < Minitest::Test
   def test_nearest_by_id
     add_items(vector_set)
     result = vector_set.nearest_by_id(1)
-    assert_equal [3, 2], result.map { |v| v[:id].to_i }
+    assert_equal ["3", "2"], result.map { |v| v[:id] }
     assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
   def test_nearest_by_vector
     add_items(vector_set)
     result = vector_set.nearest_by_vector([1, 1, 1])
-    assert_equal [1, 3, 2], result.map { |v| v[:id].to_i }
+    assert_equal ["1", "3", "2"], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
