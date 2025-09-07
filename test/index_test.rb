@@ -2,6 +2,7 @@ require_relative "test_helper"
 
 class IndexTest < Minitest::Test
   def setup
+    super
     index = Neighbor::Redis::Index.new("items", dimensions: 3, distance: "l2")
     index.drop if index.exists?
   end

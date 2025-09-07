@@ -3,7 +3,7 @@ require_relative "test_helper"
 class VectorSetTest < Minitest::Test
   def setup
     skip if server_version.to_i < 8
-
+    super
     vector_set.drop if vector_set.exists?
   end
 
