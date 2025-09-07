@@ -4,7 +4,13 @@ class VectorSetTest < Minitest::Test
   def setup
     skip if server_version.to_i < 8
     super
-    vector_set.drop if vector_set.exists?
+    vector_set.drop
+  end
+
+  def test_exists
+    assert_equal false, vector_set.exists?
+    vector_set.add(1, [1, 1, 1])
+    assert_equal true, vector_set.exists?
   end
 
   def test_nearest_by_id
