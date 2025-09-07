@@ -177,7 +177,8 @@ See the [complete code](examples/disco_item_recs.rb)
 
 ## Reference
 
-- [Vector similarity](https://redis.io/docs/stack/search/reference/vectors/)
+- [Vector search concepts](https://redis.io/docs/latest/develop/ai/search-and-query/vectors/)
+- [Vector sets](https://redis.io/docs/latest/develop/data-types/vector-sets/)
 
 ## History
 
