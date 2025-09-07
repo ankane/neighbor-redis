@@ -2,6 +2,7 @@ module Neighbor
   module Redis
     class VectorSet
       def initialize(name, dimensions:)
+        name = name.to_str
         if name.include?(":")
           raise ArgumentError, "Invalid name"
         end
