@@ -58,6 +58,11 @@ class VectorSetTest < Minitest::Test
 
     assert_equal true, vector_set.update_attributes(1, {})
     assert_empty vector_set.find_attributes(1)
+  end
+
+  def test_remove_attributes
+    vector_set.add(1, [1, 1, 1], attributes: {"category" => "A"})
+    assert_equal ({"category" => "A"}), vector_set.find_attributes(1)
 
     assert_equal true, vector_set.remove_attributes(1)
     assert_nil vector_set.find_attributes(1)
