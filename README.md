@@ -118,7 +118,7 @@ Neighbor::Redis::HNSWIndex.new(
 )
 ```
 
-SVS Vamana [unreleased]
+SVS Vamana (Redis 8.2+) [unreleased]
 
 ```ruby
 Neighbor::Redis::SvsVamanaIndex.new(
