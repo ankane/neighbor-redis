@@ -71,16 +71,13 @@ module Neighbor
       end
 
       def add(id, vector, attributes: nil)
-        id = item_id(id)
-
-        args = @add_args.dup
-        args.push("SETATTR", JSON.generate(attributes)) if attributes
-        bool_result(run_command("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type, *args))
+        add_all([id], [vector], attributes: attributes ? [attributes] : nil)[0]
       end
 
-      def add_all(ids, vectors)
+      def add_all(ids, vectors, attributes: nil)
         ids = ids.to_a.map { |v| item_id(v) }
         vectors = vectors.to_a
+        attributes = attributes.to_a if attributes
 
         raise ArgumentError, "different sizes" if ids.size != vectors.size
 
@@ -92,10 +89,17 @@ module Neighbor
           end
         end
 
+        if attributes
+          raise ArgumentError, "different sizes" if attributes.size != ids.size
+        end
+
         result =
           client.pipelined do |pipeline|
-            ids.zip(vectors) do |id, vector|
-              pipeline.call("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type, *@add_args)
+            ids.zip(vectors).each_with_index do |(id, vector), i|
+              attrs = attributes[i] if attributes
+              attribute_args = []
+              attribute_args.push("SETATTR", JSON.generate(attrs)) if attrs
+              pipeline.call("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type, *attribute_args, *@add_args)
             end
           end
         result.map { |v| bool_result(v) }

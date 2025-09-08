@@ -83,6 +83,16 @@ class VectorSetTest < Minitest::Test
     assert_equal 4, vector_set.count
   end
 
+  def test_add_all_attributes
+    ids = [1, 2, 3]
+    vectors = [[1, 1, 1], [-1, -1, -1], [1, 1, 0]]
+    attributes = [{category: "A"}, {category: "B"}, nil]
+    assert_equal [true, true, true], vector_set.add_all(ids, vectors, attributes:)
+    assert_equal ({"category" => "A"}), vector_set.attributes(1)
+    assert_equal ({"category" => "B"}), vector_set.attributes(2)
+    assert_nil vector_set.attributes(3)
+  end
+
   def test_add_all_different_dimensions
     vector_set.add(1, [1, 1, 1])
     error = assert_raises do
@@ -101,6 +111,13 @@ class VectorSetTest < Minitest::Test
   def test_add_all_different_sizes
     error = assert_raises(ArgumentError) do
       vector_set.add_all([1, 2], [[1, 1, 1]])
+    end
+    assert_equal "different sizes", error.message
+  end
+
+  def test_add_all_different_sizes_attributes
+    error = assert_raises(ArgumentError) do
+      vector_set.add_all([1, 2], [[1, 1, 1], [1, 1, 1]], attributes: [{}])
     end
     assert_equal "different sizes", error.message
   end
