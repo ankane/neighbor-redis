@@ -21,6 +21,8 @@ module Neighbor
             "NOQUANT"
           when "binary"
             "BIN"
+          when "int8"
+            "Q8"
           else
             raise ArgumentError, "Invalid quantization"
           end

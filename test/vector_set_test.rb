@@ -287,7 +287,22 @@ class VectorSetTest < Minitest::Test
     result = vector_set.search([1, 1, 1])
     assert_equal [1, 3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 0.6666, 0], result.map { |v| v[:score] }
+    assert_equal [1, 1, 1], vector_set.find(1)
+    assert_equal [-1, -1, -1], vector_set.find(2)
     assert_equal [1, 1, -1], vector_set.find(3)
+  end
+
+  def test_quantization_int8
+    vector_set = Neighbor::Redis::VectorSet.new("items", quantization: "int8", id_type: "integer")
+    vector_set.add(1, [1, 1, 1])
+    vector_set.add(2, [-1, -1, -1])
+    vector_set.add(3, [100, 10, 0])
+    result = vector_set.search([1, 1, 1])
+    assert_equal [1, 3, 2], result.map { |v| v[:id] }
+    assert_elements_in_delta [1, 0.8166452348232269, 0], result.map { |v| v[:score] }
+    assert_elements_in_delta [1, 1, 1], vector_set.find(1)
+    assert_elements_in_delta [-1, -1, -1], vector_set.find(2)
+    assert_elements_in_delta [100, 10.236221313476562, 0], vector_set.find(3)
   end
 
   private
