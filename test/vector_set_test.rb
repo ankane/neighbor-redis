@@ -51,6 +51,17 @@ class VectorSetTest < Minitest::Test
     assert_equal [1, 2, 3], vector_set.find(1)
   end
 
+  def test_add_attributes
+    assert_equal true, vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
+    assert_equal ({"category" => "A"}), vector_set.attributes(1)
+
+    assert_equal false, vector_set.add(1, [2, 2, 2])
+    assert_equal ({"category" => "A"}), vector_set.attributes(1)
+
+    assert_equal false, vector_set.add(1, [3, 3, 3], attributes: {})
+    assert_empty vector_set.attributes(1)
+  end
+
   def test_add_different_dimensions
     vector_set.add(1, [1, 1, 1])
     error = assert_raises do
