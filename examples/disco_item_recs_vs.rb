@@ -3,7 +3,7 @@ require "neighbor-redis"
 
 Neighbor::Redis.client = RedisClient.config.new_pool
 
-index = Neighbor::Redis::VectorSet.new("movies", id_type: "string")
+index = Neighbor::Redis::VectorSet.new("movies")
 index.drop if index.exists?
 
 data = Disco.load_movielens

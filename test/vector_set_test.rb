@@ -282,7 +282,7 @@ class VectorSetTest < Minitest::Test
   private
 
   def vector_set
-    @vector_set ||= Neighbor::Redis::VectorSet.new("items")
+    @vector_set ||= Neighbor::Redis::VectorSet.new("items", id_type: "integer")
   end
 
   def add_items(vector_set)

@@ -3,7 +3,7 @@ module Neighbor
     class VectorSet
       NO_DEFAULT = Object.new
 
-      def initialize(name, m: nil, ef_construction: nil, ef_search: nil, epsilon: nil, id_type: "integer")
+      def initialize(name, m: nil, ef_construction: nil, ef_search: nil, epsilon: nil, id_type: "string")
         name = name.to_str
         if name.include?(":")
           raise ArgumentError, "Invalid name"
