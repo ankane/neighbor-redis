@@ -124,7 +124,7 @@ module Neighbor
       def search(vector, count: 5, with_attributes: false, ef: nil, exact: false)
         count = count.to_i
 
-        nearest_command(["FP32", to_binary(vector)], count:, with_attributes:, ef:, exact:).map do |k, v|
+        search_command(["FP32", to_binary(vector)], count:, with_attributes:, ef:, exact:).map do |k, v|
           search_result(k, v, with_attributes:)
         end
       end
@@ -134,7 +134,7 @@ module Neighbor
         count = count.to_i
 
         result =
-          nearest_command(["ELE", id], count: count + 1, with_attributes:, ef:, exact:).filter_map do |k, v|
+          search_command(["ELE", id], count: count + 1, with_attributes:, ef:, exact:).filter_map do |k, v|
             if k != id.to_s
               search_result(k, v, with_attributes:)
             end
@@ -178,7 +178,7 @@ module Neighbor
         vector.pack("e*")
       end
 
-      def nearest_command(args, count:, with_attributes:, ef:, exact:)
+      def search_command(args, count:, with_attributes:, ef:, exact:)
         ef = @ef_search if ef.nil?
 
         args << "WITHATTRIBS" if with_attributes
