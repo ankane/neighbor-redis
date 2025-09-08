@@ -131,7 +131,7 @@ module Neighbor
               end
             end
           end
-        result.map { |v| v == 1 }
+        result.map { |v| v.is_a?(String) ? v == "OK" : v > 0 }
       end
 
       def remove(id)

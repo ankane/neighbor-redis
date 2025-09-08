@@ -198,6 +198,15 @@ class IndexTest < Minitest::Test
     assert_equal "Could not find item 4", error.message
   end
 
+  def test_json
+    index = create_index(redis_type: "json")
+    assert_equal true, index.add(1, [1, 1, 1])
+    # always returns true
+    assert_equal true, index.add(1, [1, 1, 1])
+    assert_equal true, index.remove(1)
+    assert_equal false, index.remove(1)
+  end
+
   def test_flat
     index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", id_type: "integer")
     add_items(index)
