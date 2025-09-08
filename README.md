@@ -8,7 +8,7 @@ Supports RediSearch [vector indexes](https://redis.io/docs/latest/develop/ai/sea
 
 ## Installation
 
-First, install Redis. With Docker, use:
+First, install Redis with the [RediSearch](https://github.com/RediSearch/RediSearch) module. With Docker, use:
 
 ```sh
 docker run -p 6379:6379 redis:8
