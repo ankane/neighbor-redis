@@ -308,7 +308,7 @@ class VectorSetTest < Minitest::Test
   end
 
   def test_reduce
-    vector_set = Neighbor::Redis::VectorSet.new("items", reduce: 2, id_type: "integer")
+    vector_set = Neighbor::Redis::VectorSet.new("items", reduce: 2)
     vector_set.add(1, [1, 1, 1])
     vector_set.add_all([2, 3], [[-1, -1, -1], [1, 1, 2]])
     assert_equal 2, vector_set.find(1).length
