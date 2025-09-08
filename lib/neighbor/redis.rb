@@ -19,11 +19,17 @@ module Neighbor
     class << self
       attr_accessor :client
 
-      def valkey?
-        unless defined?(@valkey)
-          @valkey = client.call("INFO").include?("valkey_version")
+      def server_type
+        unless defined?(@server_type)
+          info = client.call("INFO")
+          @server_type =
+            if info.include?("valkey_version")
+              :valkey
+            else
+              :redis
+            end
         end
-        @valkey
+        @server_type
       end
     end
   end

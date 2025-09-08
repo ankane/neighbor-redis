@@ -36,7 +36,7 @@ class Minitest::Test
   end
 
   def valkey?
-    Neighbor::Redis.valkey?
+    Neighbor::Redis.server_type == :valkey
   end
 
   def redis
