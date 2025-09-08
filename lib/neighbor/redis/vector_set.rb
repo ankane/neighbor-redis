@@ -147,7 +147,7 @@ module Neighbor
 
         run_command("VLINKS", key, id, "WITHSCORES")&.map do |links|
           hash_result(links).map do |k, v|
-            {id: item_id(k), score: v.to_f}
+            nearest_result(k, v)
           end
         end
       end
