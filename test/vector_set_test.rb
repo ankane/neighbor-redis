@@ -260,6 +260,7 @@ class VectorSetTest < Minitest::Test
     assert_equal [2], vector_set.nearest(1).map { |v| v[:id] }
     assert_equal [1, 2], vector_set.search([1, 1, 1]).map { |v| v[:id] }
     assert_equal [2], vector_set.links(1).last.map { |v| v[:id] }
+    assert_equal [1, 2], vector_set.sample(2).sort
   end
 
   private

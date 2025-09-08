@@ -136,7 +136,7 @@ module Neighbor
       def sample(n = NO_DEFAULT)
         count = n == NO_DEFAULT ? 1 : n.to_i
 
-        result = run_command("VRANDMEMBER", key, count)
+        result = run_command("VRANDMEMBER", key, count).map { |v| item_id(v) }
         n == NO_DEFAULT ? result.first : result
       end
 
