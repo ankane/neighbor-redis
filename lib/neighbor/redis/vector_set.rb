@@ -31,6 +31,13 @@ module Neighbor
         hash_result(run_command("VINFO", key))&.transform_keys { |k| k.gsub("-", "_").to_sym }
       end
 
+      def dimensions
+        run_command("VDIM", key)
+      rescue => e
+        raise e unless e.message.include?("key does not exist")
+        nil
+      end
+
       def count
         run_command("VCARD", key)
       end

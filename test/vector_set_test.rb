@@ -31,6 +31,12 @@ class VectorSetTest < Minitest::Test
     assert_nil vector_set&.info
   end
 
+  def test_dimensions
+    assert_nil vector_set.dimensions
+    vector_set.add(1, [1, 1, 1])
+    assert_equal 3, vector_set.dimensions
+  end
+
   def test_count
     add_items(vector_set)
     assert_equal 3, vector_set.count
