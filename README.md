@@ -142,6 +142,8 @@ Neighbor::Redis::VectorSet.new(
 
 ## Additional Options
 
+*Vector indexes only*
+
 Store vectors as double precision (instead of single precision)
 
 ```ruby
