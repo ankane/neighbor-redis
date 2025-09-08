@@ -2,6 +2,7 @@
 
 - Added support for vector sets
 - Added support for SVS Vamana indexes
+- Added `info` and `count` methods to indexes
 - Updated `add` and `remove` methods to return boolean
 - Updated `add_all` method to return array of booleans
 - Updated `create` and `promote` methods to return `nil`
