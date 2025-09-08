@@ -35,6 +35,10 @@ class Minitest::Test
     @@server_version ||= /redis_version:(\S+)/.match(redis.call("INFO"))[1]
   end
 
+  def valkey?
+    Neighbor::Redis.valkey?
+  end
+
   def redis
     Neighbor::Redis.client
   end

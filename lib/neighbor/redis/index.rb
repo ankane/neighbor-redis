@@ -88,7 +88,7 @@ module Neighbor
         true
       rescue => e
         message = e.message.downcase
-        raise e unless message.include?("unknown index name") || message.include?("no such index")
+        raise e unless message.include?("unknown index name") || message.include?("no such index") || message.include?("not found")
         false
       end
 
@@ -203,8 +203,12 @@ module Neighbor
       end
 
       def search_by_blob(blob, count)
-        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB]", "PARAMS", "2", "BLOB", blob, "SORTBY", "__v_score", "DIALECT", "2")
+        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB]", "PARAMS", "2", "BLOB", blob, *search_sort_by, "DIALECT", "2")
         resp.is_a?(Hash) ? parse_results_hash(resp) : parse_results_array(resp)
+      end
+
+      def search_sort_by
+        @search_sort_by ||= Neighbor::Redis.valkey? ? [] : ["SORTBY", "__v_score"]
       end
 
       def parse_results_hash(resp)

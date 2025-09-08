@@ -25,7 +25,7 @@ class IndexTest < Minitest::Test
     error = assert_raises do
       index.create
     end
-    assert_match "Index already exists", error.message
+    assert_match "already exists", error.message
   end
 
   def test_exists
@@ -46,7 +46,7 @@ class IndexTest < Minitest::Test
     error = assert_raises do
       index.info
     end
-    assert_match(/no such index|Unknown Index name/, error.message)
+    assert_match(/no such index|Unknown Index name|not found/, error.message)
   end
 
   def test_count
@@ -200,12 +200,16 @@ class IndexTest < Minitest::Test
   end
 
   def test_flat_float64
+    skip unless supports_float64?
+
     index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", type: "float64", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_flat_float64_json
+    skip unless supports_float64?
+
     index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", type: "float64", redis_type: "json", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
@@ -224,12 +228,16 @@ class IndexTest < Minitest::Test
   end
 
   def test_hnsw_float64
+    skip unless supports_float64?
+
     index = Neighbor::Redis::HnswIndex.create("items", dimensions: 3, distance: "l2", type: "float64", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_hnsw_float64_json
+    skip unless supports_float64?
+
     index = Neighbor::Redis::HnswIndex.create("items", dimensions: 3, distance: "l2", type: "float64", redis_type: "json", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
@@ -261,6 +269,8 @@ class IndexTest < Minitest::Test
   end
 
   def test_promote
+    skip if valkey?
+
     index = create_index(distance: "l2")
     add_items(index)
 
@@ -281,7 +291,7 @@ class IndexTest < Minitest::Test
     error = assert_raises do
       index.drop
     end
-    assert_match(/no such index|Unknown Index name/, error.message)
+    assert_match(/no such index|Unknown Index name|not found/, error.message)
   end
 
   def test_id_type_integer
@@ -323,5 +333,9 @@ class IndexTest < Minitest::Test
 
   def supports_svs_vamana?
     server_version.to_f >= 8.2
+  end
+
+  def supports_float64?
+    !valkey?
   end
 end
