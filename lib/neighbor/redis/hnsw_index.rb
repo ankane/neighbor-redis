@@ -6,6 +6,7 @@ module Neighbor
         initial_cap: nil,
         m: nil,
         ef_construction: nil,
+        ef_search: nil,
         ef_runtime: nil,
         epsilon: nil,
         **options
@@ -15,7 +16,7 @@ module Neighbor
         @initial_cap = initial_cap
         @m = m
         @ef_construction = ef_construction
-        @ef_runtime = ef_runtime
+        @ef_runtime = ef_search || ef_runtime
         @epsilon = epsilon
       end
 
