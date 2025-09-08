@@ -3,7 +3,7 @@ module Neighbor
     class VectorSet
       NO_DEFAULT = Object.new
 
-      def initialize(name, m: nil, ef_construction: nil, ef_runtime: nil, epsilon: nil, id_type: "integer")
+      def initialize(name, m: nil, ef_construction: nil, ef_search: nil, epsilon: nil, id_type: "integer")
         name = name.to_str
         if name.include?(":")
           raise ArgumentError, "Invalid name"
@@ -12,7 +12,7 @@ module Neighbor
         @name = name
         @m = m&.to_i
         @ef_construction = ef_construction&.to_i
-        @ef_runtime = ef_runtime&.to_i
+        @ef_search = ef_search&.to_i
         @epsilon = epsilon&.to_f
 
         case id_type.to_s
@@ -166,7 +166,7 @@ module Neighbor
       end
 
       def nearest_command(args, count:, with_attributes:, ef:, exact:)
-        ef = @ef_runtime if ef.nil?
+        ef = @ef_search if ef.nil?
 
         args << "WITHATTRIBS" if with_attributes
         args.push("EF", ef) if ef
