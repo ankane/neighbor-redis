@@ -115,7 +115,7 @@ module Neighbor
         vectors.each { |e| check_dimensions(e) }
 
         result =
-          redis.pipelined do |pipeline|
+          client.pipelined do |pipeline|
             ids.zip(vectors).each do |id, vector|
               if @json
                 pipeline.call("JSON.SET", item_key(id), "$", JSON.generate({v: vector}))
@@ -289,10 +289,10 @@ module Neighbor
         if args.any? { |v| !(v.is_a?(String) || v.is_a?(Numeric)) }
           raise TypeError, "Unexpected argument type"
         end
-        redis.call(*args)
+        client.call(*args)
       end
 
-      def redis
+      def client
         Redis.client
       end
     end

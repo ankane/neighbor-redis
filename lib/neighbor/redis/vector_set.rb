@@ -85,7 +85,7 @@ module Neighbor
         raise ArgumentError, "different sizes" if ids.size != vectors.size
 
         result =
-          redis.pipelined do |pipeline|
+          client.pipelined do |pipeline|
             ids.zip(vectors) do |id, vector|
               pipeline.call("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type, *@add_args)
             end
@@ -231,10 +231,10 @@ module Neighbor
         if args.any? { |v| !(v.is_a?(String) || v.is_a?(Numeric)) }
           raise TypeError, "Unexpected argument type"
         end
-        redis.call(*args)
+        client.call(*args)
       end
 
-      def redis
+      def client
         Redis.client
       end
     end
