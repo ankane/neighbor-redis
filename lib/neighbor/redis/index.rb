@@ -1,7 +1,7 @@
 module Neighbor
   module Redis
     class Index
-      def initialize(name, dimensions:, distance:, type: "float32", redis_type: "hash")
+      def initialize(name, dimensions:, distance:, type: "float32", redis_type: "hash", id_type: "integer")
         @index_name = index_name(name)
         @global_prefix = "neighbor:items:"
         @prefix = "#{@global_prefix}#{name}:"
@@ -39,6 +39,16 @@ module Neighbor
             true
           else
             raise ArgumentError, "invalid redis_type"
+          end
+
+        @int_ids =
+          case id_type.to_s
+          when "string"
+            false
+          when "integer"
+            true
+          else
+            raise ArgumentError, "invalid id_type"
           end
       end
 
@@ -145,7 +155,7 @@ module Neighbor
           raise Error, "Could not find item #{id}"
         end
 
-        search_by_blob(vector, count + 1).reject { |v| v[:id] == id.to_s }.first(count)
+        search_by_blob(vector, count + 1).reject { |v| v[:id] == item_id(id) }.first(count)
       end
 
       def search(vector, count: 5)
@@ -181,7 +191,11 @@ module Neighbor
       end
 
       def item_key(id)
-        "#{@prefix}#{id}"
+        "#{@prefix}#{item_id(id)}"
+      end
+
+      def item_id(id)
+        @int_ids ? Integer(id) : id.to_s
       end
 
       def search_by_blob(blob, count)
@@ -214,7 +228,7 @@ module Neighbor
         distance = calculate_distance(score)
 
         {
-          id: key[prefix_length..-1],
+          id: item_id(key[prefix_length..-1]),
           distance: distance
         }
       end

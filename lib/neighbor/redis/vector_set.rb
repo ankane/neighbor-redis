@@ -15,7 +15,7 @@ module Neighbor
         @ef_runtime = ef_runtime&.to_i
         @epsilon = epsilon&.to_f
 
-        case id_type
+        case id_type.to_s
         when "string", "integer"
           @int_ids = id_type == "integer"
         else
