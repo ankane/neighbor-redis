@@ -188,6 +188,8 @@ class IndexTest < Minitest::Test
   end
 
   def test_set_metadata_json
+    skip if server_version.to_i < 8 || valkey?
+
     index = create_index(redis_type: "json")
     index.add(1, [1, 1, 1])
     assert_empty index.metadata(1)
@@ -219,6 +221,8 @@ class IndexTest < Minitest::Test
   end
 
   def test_remove_metadata_json
+    skip if server_version.to_i < 8 || valkey?
+
     index = create_index(redis_type: "json")
     index.add(1, [1, 1, 1], metadata: {"category" => "A"})
     assert_equal ({"category" => "A"}), index.metadata(1)
