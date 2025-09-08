@@ -103,6 +103,22 @@ Remove attributes
 index.remove_attributes(id)
 ```
 
+## Quantization
+
+*Vector sets only*
+
+Use int8 quantization
+
+```ruby
+Neighbor::Redis::VectorSet.new("items", quantization: "int8")
+```
+
+Use binary quantization
+
+```ruby
+Neighbor::Redis::VectorSet.new("items", quantization: "binary")
+```
+
 ## Index Types
 
 Hierarchical Navigable Small World (HNSW)
