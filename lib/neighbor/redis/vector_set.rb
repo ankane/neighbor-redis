@@ -199,7 +199,7 @@ module Neighbor
 
       def nearest_result(k, v, with_attributes: false)
         v, a = v if with_attributes
-        value = {id: item_id(k), score: v.to_f}
+        value = {id: item_id(k), distance: 2 * (1 - v.to_f)}
         value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes
         value
       end

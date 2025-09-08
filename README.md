@@ -67,7 +67,7 @@ index.search([1, 1, 1], count: 5)
 
 Vector indexes support `l2`, `inner_product`, and `cosine` distance.
 
-Vector sets always use `cosine` and return a similarity score between 1 and 0.
+Vector sets always use `cosine` distance.
 
 ## Attributes
 

@@ -111,7 +111,7 @@ class VectorSetTest < Minitest::Test
     add_items(vector_set)
     assert_elements_in_delta [1, 1, 1], vector_set.find(1)
     assert_elements_in_delta [-1, -1, -1], vector_set.find(2)
-    assert_elements_in_delta [1, 1, 0], vector_set.find(3)
+    assert_elements_in_delta [1, 1, 2], vector_set.find(3)
     assert_nil vector_set.find(4)
   end
 
@@ -154,7 +154,7 @@ class VectorSetTest < Minitest::Test
     add_items(vector_set)
     result = vector_set.nearest(1)
     assert_equal [3, 2], result.map { |v| v[:id] }
-    assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
+    assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
   def test_nearest_attributes
@@ -171,7 +171,7 @@ class VectorSetTest < Minitest::Test
     add_items(vector_set)
     result = vector_set.nearest(1, exact: true)
     assert_equal [3, 2], result.map { |v| v[:id] }
-    assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
+    assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
   def test_nearest_missing
@@ -186,7 +186,7 @@ class VectorSetTest < Minitest::Test
     add_items(vector_set)
     result = vector_set.search([1, 1, 1])
     assert_equal [1, 3, 2], result.map { |v| v[:id] }
-    assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
+    assert_elements_in_delta [0, 0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
   def test_search_attributes
@@ -205,14 +205,14 @@ class VectorSetTest < Minitest::Test
     result = vector_set.search([1, 1, 1], ef: 2)
     # still returns 3 results
     assert_equal [1, 3, 2], result.map { |v| v[:id] }
-    assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
+    assert_elements_in_delta [0, 0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
   def test_search_exact
     add_items(vector_set)
     result = vector_set.search([1, 1, 1], exact: true)
     assert_equal [1, 3, 2], result.map { |v| v[:id] }
-    assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
+    assert_elements_in_delta [0, 0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
   def test_search_different_dimensions
@@ -227,7 +227,7 @@ class VectorSetTest < Minitest::Test
     add_items(vector_set)
     links = vector_set.links(1)
     assert_equal [2, 3], links.last.map { |v| v[:id] }
-    assert_elements_in_delta [0, 0.9082482755184174], links.last.map { |v| v[:score] }
+    assert_elements_in_delta [2, 0.05719095841050148], links.last.map { |v| v[:distance] }
 
     assert_nil vector_set.links(4)
   end
@@ -252,7 +252,7 @@ class VectorSetTest < Minitest::Test
     add_items(vector_set)
     result = vector_set.nearest(1)
     assert_equal [3], result.map { |v| v[:id] }
-    assert_elements_in_delta [0.9082482755184174], result.map { |v| v[:score] }
+    assert_elements_in_delta [0.05719095841050148], result.map { |v| v[:distance] }
   end
 
   def test_id_type_integer
@@ -286,7 +286,7 @@ class VectorSetTest < Minitest::Test
     vector_set.add(3, [100, 10, 0])
     result = vector_set.search([1, 1, 1])
     assert_equal [1, 3, 2], result.map { |v| v[:id] }
-    assert_elements_in_delta [1, 0.6666, 0], result.map { |v| v[:score] }
+    assert_elements_in_delta [0, 0.6666, 2], result.map { |v| v[:distance] }
     assert_equal [1, 1, 1], vector_set.find(1)
     assert_equal [-1, -1, -1], vector_set.find(2)
     assert_equal [1, 1, -1], vector_set.find(3)
@@ -300,7 +300,7 @@ class VectorSetTest < Minitest::Test
     vector_set.add(3, [100, 10, 0])
     result = vector_set.search([1, 1, 1])
     assert_equal [1, 3, 2], result.map { |v| v[:id] }
-    assert_elements_in_delta [1, 0.8166452348232269, 0], result.map { |v| v[:score] }
+    assert_elements_in_delta [0, 0.3677, 2], result.map { |v| v[:distance] }
     assert_elements_in_delta [1, 1, 1], vector_set.find(1)
     assert_elements_in_delta [-1, -1, -1], vector_set.find(2)
     assert_elements_in_delta [100, 10.236221313476562, 0], vector_set.find(3)
@@ -318,7 +318,7 @@ class VectorSetTest < Minitest::Test
     vectors = [
       [1, 1, 1],
       [-1, -1, -1],
-      [1, 1, 0]
+      [1, 1, 2]
     ]
     vector_set.add_all(ids, vectors)
   end
