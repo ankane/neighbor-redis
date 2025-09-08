@@ -2,6 +2,9 @@
 
 - Added support for vector sets
 - Added support for SVS Vamana indexes
+- Updated `add` and `remove` methods to return boolean
+- Updated `add_all` method to return array of booleans
+- Updated `create` and `promote` methods to return `nil`
 - Dropped support for Ruby < 3.2
 
 ## 0.2.1 (2025-05-06)
