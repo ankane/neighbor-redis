@@ -15,7 +15,7 @@ module Neighbor
       )
         name = name.to_str
         if name.include?(":")
-          raise ArgumentError, "Invalid name"
+          raise ArgumentError, "invalid name"
         end
 
         @name = name
@@ -33,14 +33,14 @@ module Neighbor
           when "int8"
             "Q8"
           else
-            raise ArgumentError, "Invalid quantization"
+            raise ArgumentError, "invalid quantization"
           end
 
         case id_type.to_s
         when "string", "integer"
           @int_ids = id_type == "integer"
         else
-          raise ArgumentError, "Invalid id_type"
+          raise ArgumentError, "invalid id_type"
         end
 
         @reduce_args = []
@@ -237,7 +237,7 @@ module Neighbor
 
       def run_command(*args)
         if args.any? { |v| !(v.is_a?(String) || v.is_a?(Numeric)) }
-          raise TypeError, "Unexpected argument type"
+          raise TypeError, "unexpected argument type"
         end
         client.call(*args)
       end

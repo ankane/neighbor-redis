@@ -182,7 +182,7 @@ module Neighbor
 
       def index_name(name)
         if name.include?(":")
-          raise ArgumentError, "Invalid name"
+          raise ArgumentError, "invalid name"
         end
 
         "neighbor-idx-#{name}"
@@ -287,7 +287,7 @@ module Neighbor
 
       def run_command(*args)
         if args.any? { |v| !(v.is_a?(String) || v.is_a?(Numeric)) }
-          raise TypeError, "Unexpected argument type"
+          raise TypeError, "unexpected argument type"
         end
         client.call(*args)
       end

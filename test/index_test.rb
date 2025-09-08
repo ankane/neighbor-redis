@@ -7,6 +7,13 @@ class IndexTest < Minitest::Test
     index.drop if index.exists?
   end
 
+  def test_new_invalid_name
+    error = assert_raises(ArgumentError) do
+      Neighbor::Redis::HnswIndex.create("items:", dimensions: 3, distance: "l2")
+    end
+    assert_equal "invalid name", error.message
+  end
+
   def test_create
     index = Neighbor::Redis::HnswIndex.new("items", dimensions: 3, distance: "l2")
     assert_nil index.create
@@ -16,7 +23,7 @@ class IndexTest < Minitest::Test
     error = assert_raises(ArgumentError) do
       Neighbor::Redis::HnswIndex.create("items:", dimensions: 3, distance: "l2")
     end
-    assert_equal "Invalid name", error.message
+    assert_equal "invalid name", error.message
   end
 
   def test_create_exists

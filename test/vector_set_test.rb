@@ -7,6 +7,13 @@ class VectorSetTest < Minitest::Test
     vector_set.drop
   end
 
+  def test_new_invalid_name
+    error = assert_raises(ArgumentError) do
+      Neighbor::Redis::VectorSet.new("items:")
+    end
+    assert_equal "invalid name", error.message
+  end
+
   def test_exists
     assert_equal false, vector_set.exists?
     vector_set.add(1, [1, 1, 1])
