@@ -3,7 +3,7 @@ module Neighbor
     class VectorSet
       NO_DEFAULT = Object.new
 
-      def initialize(name, m: nil, ef_construction: nil, ef_search: nil, epsilon: nil, id_type: "string")
+      def initialize(name, m: nil, ef_construction: nil, ef_search: nil, epsilon: nil, quantization: nil, id_type: "string")
         name = name.to_str
         if name.include?(":")
           raise ArgumentError, "Invalid name"
@@ -14,6 +14,16 @@ module Neighbor
         @ef_construction = ef_construction&.to_i
         @ef_search = ef_search&.to_i
         @epsilon = epsilon&.to_f
+
+        @quant_type =
+          case quantization&.to_s
+          when nil
+            "NOQUANT"
+          when "binary"
+            "BIN"
+          else
+            raise ArgumentError, "Invalid quantization"
+          end
 
         case id_type.to_s
         when "string", "integer"
@@ -49,7 +59,7 @@ module Neighbor
         args.push("SETATTR", JSON.generate(attributes)) if attributes
         args.push("M", @m) if @m
         args.push("EF", @ef_construction) if @ef_construction
-        bool_result(run_command("VADD", key, "FP32", to_binary(vector), id, "NOQUANT", *args))
+        bool_result(run_command("VADD", key, "FP32", to_binary(vector), id, @quant_type, *args))
       end
 
       def add_all(ids, vectors)
@@ -61,7 +71,7 @@ module Neighbor
         result =
           redis.pipelined do |pipeline|
             ids.zip(vectors) do |id, vector|
-              pipeline.call("VADD", key, "FP32", to_binary(vector), id, "NOQUANT")
+              pipeline.call("VADD", key, "FP32", to_binary(vector), id, @quant_type)
             end
           end
         result.map { |v| bool_result(v) }
