@@ -77,13 +77,18 @@ class VectorSetTest < Minitest::Test
   end
 
   def test_add_all_different_dimensions
+    vector_set.add(1, [1, 1, 1])
     error = assert_raises do
-      vector_set.add_all([1, 2], [[1, 1, 1], [1, 1]])
+      vector_set.add_all([1, 2], [[1, 1], [1, 1]])
     end
     assert_match "Vector dimension mismatch - got 2 but set has 3", error.message
+  end
 
-    # non-atomic
-    assert_equal 1, vector_set.count
+  def test_add_all_different_dimensions_vectors
+    error = assert_raises(ArgumentError) do
+      vector_set.add_all([1, 2], [[1, 1, 1], [1, 1]])
+    end
+    assert_equal "different dimensions", error.message
   end
 
   def test_add_all_different_sizes

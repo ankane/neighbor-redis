@@ -84,6 +84,14 @@ module Neighbor
 
         raise ArgumentError, "different sizes" if ids.size != vectors.size
 
+        # check first to avoid non-atomic update if different
+        if vectors.size > 1
+          dimensions = vectors.first.size
+          unless vectors.all? { |v| v.size == dimensions }
+            raise ArgumentError, "different dimensions"
+          end
+        end
+
         result =
           client.pipelined do |pipeline|
             ids.zip(vectors) do |id, vector|
