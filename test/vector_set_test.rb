@@ -249,7 +249,7 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [0.9082482755184174], result.map { |v| v[:score] }
   end
 
-  def test_id_type
+  def test_id_type_integer
     vector_set = Neighbor::Redis::VectorSet.new("items", id_type: "integer")
     vector_set.add(1, [1, 1, 1])
     vector_set.add("2", [-1, -1, -1])
@@ -261,6 +261,16 @@ class VectorSetTest < Minitest::Test
     assert_equal [1, 2], vector_set.search([1, 1, 1]).map { |v| v[:id] }
     assert_equal [2], vector_set.links(1).last.map { |v| v[:id] }
     assert_equal [1, 2], vector_set.sample(2).sort
+  end
+
+  def test_id_type_string
+    vector_set = Neighbor::Redis::VectorSet.new("items", id_type: "string")
+    vector_set.add(1, [1, 1, 1])
+    vector_set.add("2", [-1, -1, -1])
+    assert_equal ["2"], vector_set.nearest(1).map { |v| v[:id] }
+    assert_equal ["1", "2"], vector_set.search([1, 1, 1]).map { |v| v[:id] }
+    assert_equal ["2"], vector_set.links(1).last.map { |v| v[:id] }
+    assert_equal ["1", "2"], vector_set.sample(2).sort
   end
 
   private
