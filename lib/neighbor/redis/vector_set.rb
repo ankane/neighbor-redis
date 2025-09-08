@@ -10,6 +10,7 @@ module Neighbor
         ef_search: nil,
         epsilon: nil,
         quantization: nil,
+        reduce: nil,
         id_type: "string"
       )
         name = name.to_str
@@ -34,6 +35,8 @@ module Neighbor
           else
             raise ArgumentError, "Invalid quantization"
           end
+
+        @reduce_args = reduce ? ["REDUCE", reduce.to_i] : []
 
         case id_type.to_s
         when "string", "integer"
@@ -69,7 +72,7 @@ module Neighbor
         args.push("SETATTR", JSON.generate(attributes)) if attributes
         args.push("M", @m) if @m
         args.push("EF", @ef_construction) if @ef_construction
-        bool_result(run_command("VADD", key, "FP32", to_binary(vector), id, @quant_type, *args))
+        bool_result(run_command("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type, *args))
       end
 
       def add_all(ids, vectors)
@@ -81,7 +84,7 @@ module Neighbor
         result =
           redis.pipelined do |pipeline|
             ids.zip(vectors) do |id, vector|
-              pipeline.call("VADD", key, "FP32", to_binary(vector), id, @quant_type)
+              pipeline.call("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type)
             end
           end
         result.map { |v| bool_result(v) }

@@ -307,6 +307,15 @@ class VectorSetTest < Minitest::Test
     assert_equal "int8", vector_set.info[:quant_type]
   end
 
+  def test_reduce
+     vector_set = Neighbor::Redis::VectorSet.new("items", reduce: 2, id_type: "integer")
+     vector_set.add(1, [1, 1, 1])
+     vector_set.add_all([2, 3], [[-1, -1, -1], [1, 1, 2]])
+     assert_equal 2, vector_set.find(1).length
+     assert_equal 2, vector_set.find(2).length
+     assert_equal 2, vector_set.find(3).length
+  end
+
   private
 
   def vector_set

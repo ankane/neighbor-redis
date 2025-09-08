@@ -167,7 +167,8 @@ Neighbor::Redis::VectorSet.new(
   m: 16,
   ef_construction: 200,
   ef_search: 10,
-  epsilon: 0.01
+  epsilon: 0.01,
+  reduce: nil
 )
 ```
 
