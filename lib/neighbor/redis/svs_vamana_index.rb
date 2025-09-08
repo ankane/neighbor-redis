@@ -1,6 +1,6 @@
 module Neighbor
   module Redis
-    class SvsVamanaIndex < Index
+    class SVSVamanaIndex < Index
       def initialize(
         *args,
         construction_window_size: nil,
