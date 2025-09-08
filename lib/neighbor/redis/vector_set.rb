@@ -108,7 +108,7 @@ module Neighbor
 
         result =
           nearest_command(["ELE", id], count: count + 1, with_attributes:, ef:, exact:).filter_map do |k, v|
-            if k != id
+            if k != id.to_s
               nearest_result(k, v, with_attributes:)
             end
           end
@@ -128,7 +128,7 @@ module Neighbor
 
         run_command("VLINKS", key, id, "WITHSCORES")&.map do |links|
           hash_result(links).map do |k, v|
-            {id: cast_id(k), score: v.to_f}
+            {id: item_id(k), score: v.to_f}
           end
         end
       end
@@ -151,11 +151,7 @@ module Neighbor
       end
 
       def item_id(id)
-        @int_ids ? Integer(id).to_s : id.to_s
-      end
-
-      def cast_id(id)
-        @int_ids ? Integer(id) : id
+        @int_ids ? Integer(id) : id.to_s
       end
 
       def to_binary(vector)
@@ -186,7 +182,7 @@ module Neighbor
 
       def nearest_result(k, v, with_attributes: false)
         v, a = v if with_attributes
-        value = {id: cast_id(k), score: v.to_f}
+        value = {id: item_id(k), score: v.to_f}
         value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes
         value
       end
