@@ -69,38 +69,38 @@ Vector indexes support `l2`, `inner_product`, and `cosine` distance.
 
 Vector sets always use `cosine` distance.
 
-## Attributes
+## Metadata
 
 *Vector sets only*
 
-Add an item with attributes
+Add an item with metadata
 
 ```ruby
-index.add(id, vector, attributes: {category: "A"})
+index.add(id, vector, metadata: {category: "A"})
 ```
 
-Get attributes
+Get metadata
 
 ```ruby
-index.attributes(id)
+index.metadata(id)
 # or
-index.search(vector, with_attributes: true)
+index.search(vector, with_metadata: true)
 # or
-index.search_id(id, with_attributes: true)
+index.search_id(id, with_metadata: true)
 ```
 
-Set attributes
+Set metadata
 
 ```ruby
-index.set_attributes(id, {category: "B"})
+index.set_metadata(id, {category: "B"})
 ```
 
-Note: This replaces all existing attributes
+Note: This replaces all existing metadata
 
-Remove attributes
+Remove metadata
 
 ```ruby
-index.remove_attributes(id)
+index.remove_metadata(id)
 ```
 
 ## Quantization

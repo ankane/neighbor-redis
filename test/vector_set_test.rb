@@ -58,15 +58,15 @@ class VectorSetTest < Minitest::Test
     assert_equal [1, 2, 3], vector_set.find(1)
   end
 
-  def test_add_attributes
-    assert_equal true, vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
-    assert_equal ({"category" => "A"}), vector_set.attributes(1)
+  def test_add_metadata
+    assert_equal true, vector_set.add(1, [1, 1, 1], metadata: {category: "A"})
+    assert_equal ({"category" => "A"}), vector_set.metadata(1)
 
     assert_equal false, vector_set.add(1, [2, 2, 2])
-    assert_equal ({"category" => "A"}), vector_set.attributes(1)
+    assert_equal ({"category" => "A"}), vector_set.metadata(1)
 
-    assert_equal false, vector_set.add(1, [3, 3, 3], attributes: {})
-    assert_empty vector_set.attributes(1)
+    assert_equal false, vector_set.add(1, [3, 3, 3], metadata: {})
+    assert_empty vector_set.metadata(1)
   end
 
   def test_add_different_dimensions
@@ -83,14 +83,14 @@ class VectorSetTest < Minitest::Test
     assert_equal 4, vector_set.count
   end
 
-  def test_add_all_attributes
+  def test_add_all_metadata
     ids = [1, 2, 3]
     vectors = [[1, 1, 1], [-1, -1, -1], [1, 1, 0]]
-    attributes = [{category: "A"}, {category: "B"}, nil]
-    assert_equal [true, true, true], vector_set.add_all(ids, vectors, attributes:)
-    assert_equal ({"category" => "A"}), vector_set.attributes(1)
-    assert_equal ({"category" => "B"}), vector_set.attributes(2)
-    assert_nil vector_set.attributes(3)
+    metadata = [{category: "A"}, {category: "B"}, nil]
+    assert_equal [true, true, true], vector_set.add_all(ids, vectors, metadata:)
+    assert_equal ({"category" => "A"}), vector_set.metadata(1)
+    assert_equal ({"category" => "B"}), vector_set.metadata(2)
+    assert_nil vector_set.metadata(3)
   end
 
   def test_add_all_different_dimensions
@@ -115,9 +115,9 @@ class VectorSetTest < Minitest::Test
     assert_equal "different sizes", error.message
   end
 
-  def test_add_all_different_sizes_attributes
+  def test_add_all_different_sizes_metadata
     error = assert_raises(ArgumentError) do
-      vector_set.add_all([1, 2], [[1, 1, 1], [1, 1, 1]], attributes: [{}])
+      vector_set.add_all([1, 2], [[1, 1, 1], [1, 1, 1]], metadata: [{}])
     end
     assert_equal "different sizes", error.message
   end
@@ -155,39 +155,39 @@ class VectorSetTest < Minitest::Test
     assert_nil vector_set.find(4)
   end
 
-  def test_attributes
-    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
-    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
+  def test_metadata
+    vector_set.add(1, [1, 1, 1], metadata: {category: "A"})
+    vector_set.add(2, [-1, -1, -1], metadata: {category: "B"})
     vector_set.add(3, [1, 1, 0])
 
-    assert_equal ({"category" => "A"}), vector_set.attributes(1)
-    assert_equal ({"category" => "B"}), vector_set.attributes(2)
-    assert_nil vector_set.attributes(3)
-    assert_nil vector_set.attributes(4)
+    assert_equal ({"category" => "A"}), vector_set.metadata(1)
+    assert_equal ({"category" => "B"}), vector_set.metadata(2)
+    assert_nil vector_set.metadata(3)
+    assert_nil vector_set.metadata(4)
   end
 
-  def test_set_attributes
+  def test_set_metadata
     vector_set.add(1, [1, 1, 1])
-    assert_nil vector_set.attributes(1)
+    assert_nil vector_set.metadata(1)
 
-    assert_equal true, vector_set.set_attributes(1, {"category" => "A"})
-    assert_equal ({"category" => "A"}), vector_set.attributes(1)
+    assert_equal true, vector_set.set_metadata(1, {"category" => "A"})
+    assert_equal ({"category" => "A"}), vector_set.metadata(1)
 
-    assert_equal true, vector_set.set_attributes(1, {"quantity" => 2, "size" => 1.5})
-    assert_equal ({"quantity" => 2, "size" => 1.5}), vector_set.attributes(1)
+    assert_equal true, vector_set.set_metadata(1, {"quantity" => 2, "size" => 1.5})
+    assert_equal ({"quantity" => 2, "size" => 1.5}), vector_set.metadata(1)
 
-    assert_equal true, vector_set.set_attributes(1, {})
-    assert_empty vector_set.attributes(1)
+    assert_equal true, vector_set.set_metadata(1, {})
+    assert_empty vector_set.metadata(1)
   end
 
-  def test_remove_attributes
-    vector_set.add(1, [1, 1, 1], attributes: {"category" => "A"})
-    assert_equal ({"category" => "A"}), vector_set.attributes(1)
+  def test_remove_metadata
+    vector_set.add(1, [1, 1, 1], metadata: {"category" => "A"})
+    assert_equal ({"category" => "A"}), vector_set.metadata(1)
 
-    assert_equal true, vector_set.remove_attributes(1)
-    assert_nil vector_set.attributes(1)
+    assert_equal true, vector_set.remove_metadata(1)
+    assert_nil vector_set.metadata(1)
 
-    assert_equal false, vector_set.remove_attributes(2)
+    assert_equal false, vector_set.remove_metadata(2)
   end
 
   def test_search
@@ -197,15 +197,15 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [0, 0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
-  def test_search_attributes
-    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
-    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
+  def test_search_metadata
+    vector_set.add(1, [1, 1, 1], metadata: {category: "A"})
+    vector_set.add(2, [-1, -1, -1], metadata: {category: "B"})
     vector_set.add(3, [1, 1, 0])
 
-    result = vector_set.search([1, 1, 1], with_attributes: true)
-    assert_equal ({"category" => "A"}), result[0][:attributes]
-    assert_empty result[1][:attributes]
-    assert_equal ({"category" => "B"}), result[2][:attributes]
+    result = vector_set.search([1, 1, 1], with_metadata: true)
+    assert_equal ({"category" => "A"}), result[0][:metadata]
+    assert_empty result[1][:metadata]
+    assert_equal ({"category" => "B"}), result[2][:metadata]
   end
 
   def test_search_ef
@@ -238,14 +238,14 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
-  def test_search_id_attributes
-    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
-    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
+  def test_search_id_metadata
+    vector_set.add(1, [1, 1, 1], metadata: {category: "A"})
+    vector_set.add(2, [-1, -1, -1], metadata: {category: "B"})
     vector_set.add(3, [1, 1, 0])
 
-    result = vector_set.search_id(1, with_attributes: true)
-    assert_empty result[0][:attributes]
-    assert_equal ({"category" => "B"}), result[1][:attributes]
+    result = vector_set.search_id(1, with_metadata: true)
+    assert_empty result[0][:metadata]
+    assert_equal ({"category" => "B"}), result[1][:metadata]
   end
 
   def test_search_id_exact

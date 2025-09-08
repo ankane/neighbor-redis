@@ -70,14 +70,14 @@ module Neighbor
         run_command("VCARD", key)
       end
 
-      def add(id, vector, attributes: nil)
-        add_all([id], [vector], attributes: attributes ? [attributes] : nil)[0]
+      def add(id, vector, metadata: nil)
+        add_all([id], [vector], metadata: metadata ? [metadata] : nil)[0]
       end
 
-      def add_all(ids, vectors, attributes: nil)
+      def add_all(ids, vectors, metadata: nil)
         ids = ids.to_a.map { |v| item_id(v) }
         vectors = vectors.to_a
-        attributes = attributes.to_a if attributes
+        metadata = metadata.to_a if metadata
 
         raise ArgumentError, "different sizes" if ids.size != vectors.size
 
@@ -89,16 +89,16 @@ module Neighbor
           end
         end
 
-        if attributes
-          raise ArgumentError, "different sizes" if attributes.size != ids.size
+        if metadata
+          raise ArgumentError, "different sizes" if metadata.size != ids.size
         end
 
         result =
           client.pipelined do |pipeline|
             ids.zip(vectors).each_with_index do |(id, vector), i|
-              attrs = attributes[i] if attributes
+              attributes = metadata[i] if metadata
               attribute_args = []
-              attribute_args.push("SETATTR", JSON.generate(attrs)) if attrs
+              attribute_args.push("SETATTR", JSON.generate(attributes)) if attributes
               pipeline.call("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type, *attribute_args, *@add_args)
             end
           end
@@ -128,41 +128,41 @@ module Neighbor
         run_command("VEMB", key, id)&.map(&:to_f)
       end
 
-      def attributes(id)
+      def metadata(id)
         id = item_id(id)
 
         a = run_command("VGETATTR", key, id)
         a ? JSON.parse(a) : nil
       end
 
-      def set_attributes(id, attributes)
+      def set_metadata(id, metadata)
         id = item_id(id)
 
-        bool_result(run_command("VSETATTR", key, id, JSON.generate(attributes)))
+        bool_result(run_command("VSETATTR", key, id, JSON.generate(metadata)))
       end
 
-      def remove_attributes(id)
+      def remove_metadata(id)
         id = item_id(id)
 
         bool_result(run_command("VSETATTR", key, id, ""))
       end
 
-      def search(vector, count: 5, with_attributes: false, ef: nil, exact: false)
+      def search(vector, count: 5, with_metadata: false, ef: nil, exact: false)
         count = count.to_i
 
-        search_command(["FP32", to_binary(vector)], count:, with_attributes:, ef:, exact:).map do |k, v|
-          search_result(k, v, with_attributes:)
+        search_command(["FP32", to_binary(vector)], count:, with_metadata:, ef:, exact:).map do |k, v|
+          search_result(k, v, with_metadata:)
         end
       end
 
-      def search_id(id, count: 5, with_attributes: false, ef: nil, exact: false)
+      def search_id(id, count: 5, with_metadata: false, ef: nil, exact: false)
         id = item_id(id)
         count = count.to_i
 
         result =
-          search_command(["ELE", id], count: count + 1, with_attributes:, ef:, exact:).filter_map do |k, v|
+          search_command(["ELE", id], count: count + 1, with_metadata:, ef:, exact:).filter_map do |k, v|
             if k != id.to_s
-              search_result(k, v, with_attributes:)
+              search_result(k, v, with_metadata:)
             end
           end
         result.first(count)
@@ -204,17 +204,17 @@ module Neighbor
         vector.pack("e*")
       end
 
-      def search_command(args, count:, with_attributes:, ef:, exact:)
+      def search_command(args, count:, with_metadata:, ef:, exact:)
         ef = @ef_search if ef.nil?
 
-        args << "WITHATTRIBS" if with_attributes
+        args << "WITHATTRIBS" if with_metadata
         args.push("EF", ef) if ef
         args.push("EPSILON", @epsilon) if @epsilon
         args << "TRUTH" if exact
 
         result = run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
         if result.is_a?(Array)
-          if with_attributes
+          if with_metadata
             result.each_slice(3).to_h { |v| [v[0], v[1..]] }
           else
             hash_result(result)
@@ -224,10 +224,10 @@ module Neighbor
         end
       end
 
-      def search_result(k, v, with_attributes: false)
-        v, a = v if with_attributes
+      def search_result(k, v, with_metadata: false)
+        v, a = v if with_metadata
         value = {id: item_id(k), distance: 2 * (1 - v.to_f)}
-        value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes
+        value.merge!(metadata: a ? JSON.parse(a) : {}) if with_metadata
         value
       end
 
