@@ -71,7 +71,7 @@ Vector sets always use `cosine` distance.
 
 ## Metadata
 
-*Vector sets only*
+*Unreleased*
 
 Add an item with metadata
 

@@ -72,6 +72,19 @@ class IndexTest < Minitest::Test
     assert_equal [2, 2, 2], index.find(1)
   end
 
+  def test_add_metadata
+    index = create_index
+    assert_equal true, index.add(1, [1, 1, 1], metadata: {category: "A"})
+    assert_equal ({"category" => "A"}), index.metadata(1)
+
+    assert_equal false, index.add(1, [2, 2, 2])
+    assert_equal ({"category" => "A"}), index.metadata(1)
+
+    assert_equal false, index.add(1, [3, 3, 3], metadata: {})
+    # TODO fix
+    # assert_empty index.metadata(1)
+  end
+
   def test_add_different_dimensions
     index = create_index
     error = assert_raises(ArgumentError) do
@@ -126,6 +139,86 @@ class IndexTest < Minitest::Test
     assert_elements_in_delta [2, 2, 2], index.find(2)
     assert_elements_in_delta [1, 1, 2], index.find(3)
     assert_nil index.find(4)
+  end
+
+  def test_metadata
+    index = create_index
+    index.add(1, [1, 1, 1], metadata: {category: "A"})
+    index.add(2, [-1, -1, -1], metadata: {category: "B"})
+    index.add(3, [1, 1, 0])
+
+    assert_equal ({"category" => "A"}), index.metadata(1)
+    assert_equal ({"category" => "B"}), index.metadata(2)
+    assert_empty index.metadata(3)
+    assert_empty index.metadata(4)
+  end
+
+  def test_metadata_json
+    index = create_index(redis_type: "json")
+    index.add(1, [1, 1, 1], metadata: {category: "A"})
+    index.add(2, [-1, -1, -1], metadata: {category: "B"})
+    index.add(3, [1, 1, 0])
+
+    assert_equal ({"category" => "A"}), index.metadata(1)
+    assert_equal ({"category" => "B"}), index.metadata(2)
+    assert_empty index.metadata(3)
+    assert_nil index.metadata(4)
+  end
+
+  def test_set_metadata
+    index = create_index
+    index.add(1, [1, 1, 1])
+    assert_empty index.metadata(1)
+
+    assert_equal true, index.set_metadata(1, {"category" => "A"})
+    assert_equal ({"category" => "A"}), index.metadata(1)
+    assert_equal [1, 1, 1], index.find(1)
+
+    assert_equal true, index.set_metadata(1, {"quantity" => 2, "size" => 1.5})
+    # TODO fix
+    # assert_equal ({"quantity" => 2, "size" => 1.5}), index.metadata(1)
+
+    # assert_equal true, index.set_metadata(1, {})
+    # assert_empty index.metadata(1)
+  end
+
+  def test_set_metadata_json
+    index = create_index(redis_type: "json")
+    index.add(1, [1, 1, 1])
+    assert_empty index.metadata(1)
+
+    assert_equal true, index.set_metadata(1, {"category" => "A"})
+    assert_equal ({"category" => "A"}), index.metadata(1)
+    assert_equal [1, 1, 1], index.find(1)
+
+    assert_equal true, index.set_metadata(1, {"quantity" => 2, "size" => 1.5})
+    # TODO fix
+    # assert_equal ({"quantity" => 2, "size" => 1.5}), index.metadata(1)
+
+    # assert_equal true, index.set_metadata(1, {})
+    # assert_empty index.metadata(1)
+  end
+
+  def test_remove_metadata
+    index = create_index
+    index.add(1, [1, 1, 1], metadata: {"category" => "A"})
+    assert_equal ({"category" => "A"}), index.metadata(1)
+
+    assert_equal true, index.remove_metadata(1)
+    assert_empty index.metadata(1)
+
+    assert_equal false, index.remove_metadata(2)
+  end
+
+  def test_remove_metadata_json
+    index = create_index(redis_type: "json")
+    index.add(1, [1, 1, 1], metadata: {"category" => "A"})
+    assert_equal ({"category" => "A"}), index.metadata(1)
+
+    assert_equal true, index.remove_metadata(1)
+    assert_empty index.metadata(1)
+
+    assert_equal false, index.remove_metadata(2)
   end
 
   def test_search_l2

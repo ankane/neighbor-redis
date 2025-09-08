@@ -109,25 +109,37 @@ module Neighbor
         info.fetch("num_docs").to_i
       end
 
-      def add(id, vector)
-        add_all([id], [vector])[0]
+      def add(id, vector, metadata: nil)
+        add_all([id], [vector], metadata: metadata ? [metadata] : nil)[0]
       end
 
-      def add_all(ids, vectors)
+      def add_all(ids, vectors, metadata: nil)
         ids = ids.to_a
         vectors = vectors.to_a
+        metadata = metadata.to_a if metadata
 
         raise ArgumentError, "different sizes" if ids.size != vectors.size
 
         vectors.each { |e| check_dimensions(e) }
 
+        if metadata
+          raise ArgumentError, "different sizes" if metadata.size != ids.size
+
+          metadata = metadata.map { |v| v&.transform_keys(&:to_s) }
+          if metadata.any? { |v| v&.key?("v") }
+            # TODO improve
+            raise ArgumentError, "invalid metadata"
+          end
+        end
+
         result =
           client.pipelined do |pipeline|
-            ids.zip(vectors).each do |id, vector|
+            ids.zip(vectors).each_with_index do |(id, vector), i|
+              attributes = metadata && metadata[i] || {}
               if @json
-                pipeline.call("JSON.SET", item_key(id), "$", JSON.generate({v: vector}))
+                pipeline.call("JSON.SET", item_key(id), "$", JSON.generate(attributes.merge({"v" => vector})))
               else
-                pipeline.call("HSET", item_key(id), {v: to_binary(vector)})
+                pipeline.call("HSET", item_key(id), attributes.merge({"v" => to_binary(vector)}))
               end
             end
           end
@@ -149,6 +161,59 @@ module Neighbor
         else
           s = run_command("HGET", item_key(id), "v")
           from_binary(s) if s
+        end
+      end
+
+      def metadata(id)
+        if @json
+          v = run_command("JSON.GET", item_key(id))
+          JSON.parse(v).except("v") if v
+        else
+          hash_result(run_command("HGETALL", item_key(id))).except("v")
+        end
+      end
+
+      def set_metadata(id, metadata)
+        # TODO DRY
+        metadata = metadata.transform_keys(&:to_s)
+        raise ArgumentError, "invalid metadata" if metadata.key?("v")
+
+        if @json
+          run_command("JSON.MERGE", item_key(id), "$", JSON.generate(metadata)) == "OK"
+        else
+          args = []
+          metadata.each do |k, v|
+            args.push(k, v)
+          end
+          if args.any?
+            run_command("HSET", item_key(id), *args) > 0
+          else
+            false
+          end
+        end
+      end
+
+      def remove_metadata(id)
+        key = item_key(id)
+
+        if @json
+          keys = run_command("JSON.OBJKEYS", key)
+          return false unless keys
+
+          keys -= ["v"]
+          if keys.any?
+            # merge with null deletes key
+            run_command("JSON.MERGE", item_key(id), "$", JSON.generate(keys.to_h { |k| [k, nil] })) == "OK"
+          else
+            true
+          end
+        else
+          fields = run_command("HKEYS", key) - ["v"]
+          if fields.any?
+            run_command("HDEL", key, *fields) > 0
+          else
+            false
+          end
         end
       end
 

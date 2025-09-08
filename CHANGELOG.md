@@ -1,5 +1,6 @@
 ## 0.3.0 (unreleased)
 
+- Added support for metadata
 - Added support for vector sets
 - Added support for SVS Vamana indexes
 - Added `info` and `count` methods to indexes
