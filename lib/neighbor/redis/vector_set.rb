@@ -3,7 +3,7 @@ module Neighbor
     class VectorSet
       NO_DEFAULT = Object.new
 
-      def initialize(name, m: nil, ef_construction: nil, ef_runtime: nil, epsilon: nil)
+      def initialize(name, m: nil, ef_construction: nil, ef_runtime: nil, epsilon: nil, id_type: "string")
         name = name.to_str
         if name.include?(":")
           raise ArgumentError, "Invalid name"
@@ -14,6 +14,13 @@ module Neighbor
         @ef_construction = ef_construction&.to_i
         @ef_runtime = ef_runtime&.to_i
         @epsilon = epsilon&.to_f
+
+        case id_type
+        when "string", "integer"
+          @int_ids = id_type == "integer"
+        else
+          raise ArgumentError, "Invalid id_type"
+        end
       end
 
       def exists?
@@ -121,7 +128,7 @@ module Neighbor
 
         run_command("VLINKS", key, id, "WITHSCORES")&.map do |links|
           hash_result(links).map do |k, v|
-            {id: k, score: v.to_f}
+            {id: cast_id(k), score: v.to_f}
           end
         end
       end
@@ -144,7 +151,11 @@ module Neighbor
       end
 
       def item_id(id)
-        id.to_s
+        @int_ids ? Integer(id).to_s : id.to_s
+      end
+
+      def cast_id(id)
+        @int_ids ? Integer(id) : id
       end
 
       def to_binary(vector)
@@ -175,7 +186,7 @@ module Neighbor
 
       def nearest_result(k, v, with_attributes: false)
         v, a = v if with_attributes
-        value = {id: k, score: v.to_f}
+        value = {id: cast_id(k), score: v.to_f}
         value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes
         value
       end
