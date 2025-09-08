@@ -150,38 +150,6 @@ class VectorSetTest < Minitest::Test
     assert_equal false, vector_set.remove_attributes(2)
   end
 
-  def test_search_id
-    add_items(vector_set)
-    result = vector_set.search_id(1)
-    assert_equal [3, 2], result.map { |v| v[:id] }
-    assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
-  end
-
-  def test_search_id_attributes
-    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
-    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
-    vector_set.add(3, [1, 1, 0])
-
-    result = vector_set.search_id(1, with_attributes: true)
-    assert_empty result[0][:attributes]
-    assert_equal ({"category" => "B"}), result[1][:attributes]
-  end
-
-  def test_search_id_exact
-    add_items(vector_set)
-    result = vector_set.search_id(1, exact: true)
-    assert_equal [3, 2], result.map { |v| v[:id] }
-    assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
-  end
-
-  def test_search_id_missing
-    add_items(vector_set)
-    error = assert_raises do
-      vector_set.search_id(4)
-    end
-    assert_match "element not found in set", error.message
-  end
-
   def test_search
     add_items(vector_set)
     result = vector_set.search([1, 1, 1])
@@ -221,6 +189,38 @@ class VectorSetTest < Minitest::Test
       vector_set.search([1, 1])
     end
     assert_match "Vector dimension mismatch - got 2 but set has 3", error.message
+  end
+
+  def test_search_id
+    add_items(vector_set)
+    result = vector_set.search_id(1)
+    assert_equal [3, 2], result.map { |v| v[:id] }
+    assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
+  end
+
+  def test_search_id_attributes
+    vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
+    vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
+    vector_set.add(3, [1, 1, 0])
+
+    result = vector_set.search_id(1, with_attributes: true)
+    assert_empty result[0][:attributes]
+    assert_equal ({"category" => "B"}), result[1][:attributes]
+  end
+
+  def test_search_id_exact
+    add_items(vector_set)
+    result = vector_set.search_id(1, exact: true)
+    assert_equal [3, 2], result.map { |v| v[:id] }
+    assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
+  end
+
+  def test_search_id_missing
+    add_items(vector_set)
+    error = assert_raises do
+      vector_set.search_id(4)
+    end
+    assert_match "element not found in set", error.message
   end
 
   def test_links

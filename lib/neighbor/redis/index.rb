@@ -145,6 +145,12 @@ module Neighbor
         end
       end
 
+      def search(vector, count: 5)
+        check_dimensions(vector)
+
+        search_by_blob(to_binary(vector), count)
+      end
+
       def search_id(id, count: 5)
         vector =
           if @json
@@ -161,12 +167,6 @@ module Neighbor
         search_by_blob(vector, count + 1).reject { |v| v[:id] == item_id(id) }.first(count)
       end
       alias_method :nearest, :search_id
-
-      def search(vector, count: 5)
-        check_dimensions(vector)
-
-        search_by_blob(to_binary(vector), count)
-      end
 
       def promote(alias_name)
         run_command("FT.ALIASUPDATE", index_name(alias_name), @index_name)

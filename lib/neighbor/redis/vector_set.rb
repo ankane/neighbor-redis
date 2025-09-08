@@ -121,6 +121,14 @@ module Neighbor
         bool_result(run_command("VSETATTR", key, id, ""))
       end
 
+      def search(vector, count: 5, with_attributes: false, ef: nil, exact: false)
+        count = count.to_i
+
+        nearest_command(["FP32", to_binary(vector)], count:, with_attributes:, ef:, exact:).map do |k, v|
+          search_result(k, v, with_attributes:)
+        end
+      end
+
       def search_id(id, count: 5, with_attributes: false, ef: nil, exact: false)
         id = item_id(id)
         count = count.to_i
@@ -128,27 +136,19 @@ module Neighbor
         result =
           nearest_command(["ELE", id], count: count + 1, with_attributes:, ef:, exact:).filter_map do |k, v|
             if k != id.to_s
-              nearest_result(k, v, with_attributes:)
+              search_result(k, v, with_attributes:)
             end
           end
         result.first(count)
       end
       alias_method :nearest, :search_id
 
-      def search(vector, count: 5, with_attributes: false, ef: nil, exact: false)
-        count = count.to_i
-
-        nearest_command(["FP32", to_binary(vector)], count:, with_attributes:, ef:, exact:).map do |k, v|
-          nearest_result(k, v, with_attributes:)
-        end
-      end
-
       def links(id)
         id = item_id(id)
 
         run_command("VLINKS", key, id, "WITHSCORES")&.map do |links|
           hash_result(links).map do |k, v|
-            nearest_result(k, v)
+            search_result(k, v)
           end
         end
       end
@@ -198,7 +198,7 @@ module Neighbor
         end
       end
 
-      def nearest_result(k, v, with_attributes: false)
+      def search_result(k, v, with_attributes: false)
         v, a = v if with_attributes
         value = {id: item_id(k), distance: 2 * (1 - v.to_f)}
         value.merge!(attributes: a ? JSON.parse(a) : {}) if with_attributes

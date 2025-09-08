@@ -51,16 +51,16 @@ index.add(3, [1, 1, 2])
 
 Note: IDs are stored and returned as strings (uses less total memory)
 
-Get the nearest neighbors to an item
-
-```ruby
-index.nearest(1, count: 5)
-```
-
 Get the nearest neighbors to a vector
 
 ```ruby
 index.search([1, 1, 1], count: 5)
+```
+
+Get the nearest neighbors to an item
+
+```ruby
+index.nearest(1, count: 5)
 ```
 
 ## Distance
@@ -84,9 +84,9 @@ Get attributes
 ```ruby
 index.attributes(id)
 # or
-index.search_id(id, with_attributes: true)
-# or
 index.search(vector, with_attributes: true)
+# or
+index.search_id(id, with_attributes: true)
 ```
 
 Set attributes
