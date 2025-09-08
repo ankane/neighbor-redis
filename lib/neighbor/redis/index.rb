@@ -88,7 +88,7 @@ module Neighbor
         true
       rescue => e
         message = e.message.downcase
-        raise unless message.include?("unknown index name") || message.include?("no such index")
+        raise e unless message.include?("unknown index name") || message.include?("no such index")
         false
       end
 
