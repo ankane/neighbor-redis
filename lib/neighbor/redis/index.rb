@@ -281,7 +281,7 @@ module Neighbor
       end
 
       def run_command(*args)
-        if args.any? { |v| !(v.is_a?(String) || v.is_a?(Integer)) }
+        if args.any? { |v| !(v.is_a?(String) || v.is_a?(Numeric)) }
           raise TypeError, "Unexpected argument type"
         end
         redis.call(*args)
