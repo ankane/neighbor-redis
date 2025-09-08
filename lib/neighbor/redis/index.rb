@@ -75,6 +75,9 @@ module Neighbor
         end
         run_command(*command)
         nil
+      rescue => e
+        raise Error, "RediSearch not installed" if e.message.include?("ERR unknown command 'FT.")
+        raise e
       end
 
       def exists?
@@ -282,9 +285,6 @@ module Neighbor
           raise TypeError, "Unexpected argument type"
         end
         redis.call(*args)
-      rescue => e
-        raise Error, "RediSearch not installed" if e.message.include?("ERR unknown command 'FT.")
-        raise e
       end
 
       def redis
