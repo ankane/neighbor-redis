@@ -46,7 +46,7 @@ class IndexTest < Minitest::Test
     error = assert_raises do
       index.info
     end
-    assert_match "no such index", error.message
+    assert_match /no such index|Unknown Index name/, error.message
   end
 
   def test_count

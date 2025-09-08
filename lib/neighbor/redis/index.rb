@@ -86,7 +86,7 @@ module Neighbor
       end
 
       def count
-        info["num_docs"]
+        info.fetch("num_docs").to_i
       end
 
       def add(id, vector)
@@ -119,7 +119,7 @@ module Neighbor
       end
 
       def remove_all(ids)
-        run_command("DEL", *ids.map { |id| item_key(id) })
+        run_command("DEL", *ids.map { |id| item_key(id) }).to_i
       end
 
       def find(id)
