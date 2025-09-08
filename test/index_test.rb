@@ -96,20 +96,20 @@ class IndexTest < Minitest::Test
   end
 
   def test_remove
-    index = create_index(distance: "l2")
+    index = create_index(distance: "l2", id_type: "integer")
     add_items(index)
     assert_equal true, index.remove(2)
     assert_equal false, index.remove(4)
     assert_equal 2, index.count
-    assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+    assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_remove_all
-    index = create_index(distance: "l2")
+    index = create_index(distance: "l2", id_type: "integer")
     add_items(index)
     assert_equal 1, index.remove_all([2, 4])
     assert_equal 2, index.count
-    assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+    assert_equal [1, 3], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_find
@@ -122,26 +122,26 @@ class IndexTest < Minitest::Test
   end
 
   def test_nearest_l2
-    index = create_index(distance: "l2")
+    index = create_index(distance: "l2", id_type: "integer")
     add_items(index)
     result = index.nearest(1)
-    assert_equal [3, 2], result.map { |v| v[:id].to_i }
+    assert_equal [3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 1.7320507764816284], result.map { |v| v[:distance] }
   end
 
   def test_nearest_inner_product
-    index = create_index(distance: "inner_product")
+    index = create_index(distance: "inner_product", id_type: "integer")
     add_items(index)
     result = index.nearest(1)
-    assert_equal [2, 3], result.map { |v| v[:id].to_i }
+    assert_equal [2, 3], result.map { |v| v[:id] }
     assert_elements_in_delta [6, 4], result.map { |v| v[:distance] }
   end
 
   def test_nearest_cosine
-    index = create_index(distance: "cosine")
+    index = create_index(distance: "cosine", id_type: "integer")
     add_items(index)
     result = index.nearest(1)
-    assert_equal [2, 3], result.map { |v| v[:id].to_i }
+    assert_equal [2, 3], result.map { |v| v[:id] }
     assert_elements_in_delta [0, 0.05719095841050148], result.map { |v| v[:distance] }
   end
 
@@ -154,10 +154,10 @@ class IndexTest < Minitest::Test
   end
 
   def test_search
-    index = create_index(distance: "l2")
+    index = create_index(distance: "l2", id_type: "integer")
     add_items(index)
     result = index.search([1, 1, 1])
-    assert_equal [1, 3, 2], result.map { |v| v[:id].to_i }
+    assert_equal [1, 3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [0, 1, 1.7320507764816284], result.map { |v| v[:distance] }
   end
 
@@ -170,39 +170,39 @@ class IndexTest < Minitest::Test
   end
 
   def test_flat
-    index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2")
+    index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", id_type: "integer")
     add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_hnsw
-    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2")
+    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", id_type: "integer")
     add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_flat_json
-    index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json")
+    index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
     add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_hnsw_json
-    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json")
+    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
     add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_float64
     index = create_index(distance: "l2", type: "float64")
     add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_float64_json
-    index = create_index(distance: "l2", type: "float64", redis_type: "json")
+    index = create_index(distance: "l2", type: "float64", redis_type: "json", id_type: "integer")
     add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_promote
@@ -213,8 +213,8 @@ class IndexTest < Minitest::Test
       assert_nil index.promote("new-items")
     end
 
-    index = Neighbor::Redis::HNSWIndex.new("new-items", dimensions: 3, distance: "l2")
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id].to_i }
+    index = Neighbor::Redis::HNSWIndex.new("new-items", dimensions: 3, distance: "l2", id_type: "integer")
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_drop
