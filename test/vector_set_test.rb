@@ -256,8 +256,12 @@ class VectorSetTest < Minitest::Test
   end
 
   def add_items(vector_set)
-    vector_set.add(1, [1, 1, 1])
-    vector_set.add(2, [-1, -1, -1])
-    vector_set.add(3, [1, 1, 0])
+    ids = [1, 2, 3]
+    vectors = [
+      [1, 1, 1],
+      [-1, -1, -1],
+      [1, 1, 0]
+    ]
+    vector_set.add_all(ids, vectors)
   end
 end
