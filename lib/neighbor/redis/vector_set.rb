@@ -36,14 +36,19 @@ module Neighbor
             raise ArgumentError, "Invalid quantization"
           end
 
-        @reduce_args = reduce ? ["REDUCE", reduce.to_i] : []
-
         case id_type.to_s
         when "string", "integer"
           @int_ids = id_type == "integer"
         else
           raise ArgumentError, "Invalid id_type"
         end
+
+        @reduce_args = []
+        @reduce_args.push("REDUCE", reduce.to_i) if reduce
+
+        @add_args = []
+        @add_args.push("M", @m) if @m
+        @add_args.push("EF", @ef_construction) if @ef_construction
       end
 
       def exists?
@@ -68,10 +73,8 @@ module Neighbor
       def add(id, vector, attributes: nil)
         id = item_id(id)
 
-        args = []
+        args = @add_args.dup
         args.push("SETATTR", JSON.generate(attributes)) if attributes
-        args.push("M", @m) if @m
-        args.push("EF", @ef_construction) if @ef_construction
         bool_result(run_command("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type, *args))
       end
 
@@ -84,7 +87,7 @@ module Neighbor
         result =
           redis.pipelined do |pipeline|
             ids.zip(vectors) do |id, vector|
-              pipeline.call("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type)
+              pipeline.call("VADD", key, *@reduce_args, "FP32", to_binary(vector), id, @quant_type, *@add_args)
             end
           end
         result.map { |v| bool_result(v) }
