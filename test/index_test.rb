@@ -175,8 +175,44 @@ class IndexTest < Minitest::Test
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
+  def test_flat_json
+    index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
+    add_items(index)
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
+  end
+
+  def test_flat_float64
+    index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", type: "float64", id_type: "integer")
+    add_items(index)
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
+  end
+
+  def test_flat_float64_json
+    index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", type: "float64", redis_type: "json", id_type: "integer")
+    add_items(index)
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
+  end
+
   def test_hnsw
     index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", id_type: "integer")
+    add_items(index)
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
+  end
+
+  def test_hnsw_json
+    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
+    add_items(index)
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
+  end
+
+  def test_hnsw_float64
+    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", type: "float64", id_type: "integer")
+    add_items(index)
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
+  end
+
+  def test_hnsw_float64_json
+    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", type: "float64", redis_type: "json", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
@@ -189,34 +225,10 @@ class IndexTest < Minitest::Test
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
-  def test_flat_json
-    index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
-    add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
-  end
-
-  def test_hnsw_json
-    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
-    add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
-  end
-
   def test_svs_vamana_json
     skip unless supports_svs_vamana?
 
     index = Neighbor::Redis::SvsVamanaIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
-    add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
-  end
-
-  def test_float64
-    index = create_index(distance: "l2", type: "float64")
-    add_items(index)
-    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
-  end
-
-  def test_float64_json
-    index = create_index(distance: "l2", type: "float64", redis_type: "json", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
