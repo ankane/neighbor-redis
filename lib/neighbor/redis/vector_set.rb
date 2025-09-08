@@ -159,13 +159,11 @@ module Neighbor
       end
 
       def nearest_command(args, count:, with_attributes:, ef:, exact:)
-        args << "WITHATTRIBS" if with_attributes
-
         ef = @ef_runtime if ef.nil?
+
+        args << "WITHATTRIBS" if with_attributes
         args.push("EF", ef) if ef
-
         args.push("EPSILON", @epsilon) if @epsilon
-
         args << "TRUTH" if exact
 
         result = run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
