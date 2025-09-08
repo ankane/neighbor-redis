@@ -123,10 +123,13 @@ SVS Vamana [unreleased] - *Redis 8.2+*
 ```ruby
 Neighbor::Redis::SvsVamanaIndex.new(
   name,
+  compression: nil,
   construction_window_size: 200,
   graph_max_degree: 32,
   search_window_size: 10,
-  epsilon: 0.01
+  epsilon: 0.01,
+  training_threshold: nil,
+  reduce: nil
 )
 ```
 
