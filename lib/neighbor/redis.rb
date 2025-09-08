@@ -25,6 +25,8 @@ module Neighbor
           @server_type =
             if info.include?("valkey_version")
               :valkey
+            elsif info.include?("dragonfly_version")
+              :dragonfly
             else
               :redis
             end

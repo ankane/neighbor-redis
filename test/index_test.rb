@@ -145,6 +145,8 @@ class IndexTest < Minitest::Test
   end
 
   def test_search_cosine
+    skip if dragonfly?
+
     index = create_index(distance: "cosine", id_type: "integer")
     index.add(1, [1, 1, 1])
     index.add(2, [-1, -1, -1])
@@ -179,6 +181,8 @@ class IndexTest < Minitest::Test
   end
 
   def test_search_id_cosine
+    skip if dragonfly?
+
     index = create_index(distance: "cosine", id_type: "integer")
     add_items(index)
     result = index.search_id(1)
@@ -276,7 +280,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_promote
-    skip if valkey?
+    skip if valkey? || dragonfly?
 
     index = create_index(distance: "l2")
     add_items(index)
@@ -324,7 +328,7 @@ class IndexTest < Minitest::Test
   private
 
   def create_index(**options)
-    options[:distance] ||= ["l2", "inner_product", "cosine"].sample
+    options[:distance] ||= ["l2", "inner_product", *(dragonfly? ? [] : ["cosine"])].sample
     Neighbor::Redis::HnswIndex.create("items", dimensions: 3, **options)
   end
 
@@ -343,6 +347,6 @@ class IndexTest < Minitest::Test
   end
 
   def supports_float64?
-    !valkey?
+    !valkey? && !dragonfly?
   end
 end

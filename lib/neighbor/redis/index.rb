@@ -11,10 +11,17 @@ module Neighbor
         unless distance.nil?
           @distance_metric =
             case distance.to_s
-            when "l2", "cosine"
-              distance.to_s.upcase
+            when "l2"
+              "L2"
             when "inner_product"
               "IP"
+            when "cosine"
+              if Redis.server_type == :dragonfly
+                # uses inner product instead of cosine distance?
+                raise ArgumentError, "unsupported distance"
+              else
+                "COSINE"
+              end
             else
               raise ArgumentError, "invalid distance"
             end
@@ -203,7 +210,7 @@ module Neighbor
       end
 
       def search_by_blob(blob, count)
-        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB]", "PARAMS", "2", "BLOB", blob, *search_sort_by, "DIALECT", "2")
+        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_by, "DIALECT", "2")
         resp.is_a?(Hash) ? parse_results_hash(resp) : parse_results_array(resp)
       end
 
@@ -225,7 +232,7 @@ module Neighbor
         prefix_length = nil
         resp.shift.times.map do |i|
           key, info = resp.shift(2)
-          info = info.each_slice(2).to_h
+          info = info.each_slice(2).to_h unless info.is_a?(Hash)
           prefix_length ||= find_prefix_length(key)
           search_result(key, info, prefix_length)
         end

@@ -39,6 +39,10 @@ class Minitest::Test
     Neighbor::Redis.server_type == :valkey
   end
 
+  def dragonfly?
+    Neighbor::Redis.server_type == :dragonfly
+  end
+
   def redis
     Neighbor::Redis.client
   end
