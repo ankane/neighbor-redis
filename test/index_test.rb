@@ -261,6 +261,30 @@ class IndexTest < Minitest::Test
     assert_elements_in_delta [0, 0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
+  def test_search_metadata
+    index = create_index(distance: "cosine")
+    index.add(1, [1, 1, 1], metadata: {category: "A"})
+    index.add(2, [-1, -1, -1], metadata: {category: "B"})
+    index.add(3, [1, 1, 0])
+
+    result = index.search([1, 1, 1], with_metadata: true)
+    assert_equal ({"category" => "A"}), result[0][:metadata]
+    assert_empty result[1][:metadata]
+    assert_equal ({"category" => "B"}), result[2][:metadata]
+  end
+
+  def test_search_metadata_json
+    index = create_index(distance: "cosine", redis_type: "json")
+    index.add(1, [1, 1, 1], metadata: {category: "A"})
+    index.add(2, [-1, -1, -1], metadata: {category: "B"})
+    index.add(3, [1, 1, 0])
+
+    result = index.search([1, 1, 1], with_metadata: true)
+    assert_equal ({"category" => "A"}), result[0][:metadata]
+    assert_empty result[1][:metadata]
+    assert_equal ({"category" => "B"}), result[2][:metadata]
+  end
+
   def test_search_different_dimensions
     index = create_index
     error = assert_raises(ArgumentError) do
@@ -293,6 +317,28 @@ class IndexTest < Minitest::Test
     result = index.search_id(1)
     assert_equal [2, 3], result.map { |v| v[:id] }
     assert_elements_in_delta [0, 0.05719095841050148], result.map { |v| v[:distance] }
+  end
+
+  def test_search_id_metadata
+    index = create_index(distance: "cosine")
+    index.add(1, [1, 1, 1], metadata: {category: "A"})
+    index.add(2, [-1, -1, -1], metadata: {category: "B"})
+    index.add(3, [1, 1, 0])
+
+    result = index.search_id(1, with_metadata: true)
+    assert_empty result[0][:metadata]
+    assert_equal ({"category" => "B"}), result[1][:metadata]
+  end
+
+  def test_search_id_metadata_json
+    index = create_index(distance: "cosine", redis_type: "json")
+    index.add(1, [1, 1, 1], metadata: {category: "A"})
+    index.add(2, [-1, -1, -1], metadata: {category: "B"})
+    index.add(3, [1, 1, 0])
+
+    result = index.search_id(1, with_metadata: true)
+    assert_empty result[0][:metadata]
+    assert_equal ({"category" => "B"}), result[1][:metadata]
   end
 
   def test_search_id_missing

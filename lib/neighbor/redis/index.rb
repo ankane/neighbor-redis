@@ -217,13 +217,13 @@ module Neighbor
         end
       end
 
-      def search(vector, count: 5)
+      def search(vector, count: 5, with_metadata: false)
         check_dimensions(vector)
 
-        search_by_blob(to_binary(vector), count)
+        search_by_blob(to_binary(vector), count, with_metadata:)
       end
 
-      def search_id(id, count: 5)
+      def search_id(id, count: 5, with_metadata: false)
         vector =
           if @json
             s = run_command("JSON.GET", item_key(id), "$.v")
@@ -236,7 +236,7 @@ module Neighbor
           raise Error, "Could not find item #{id}"
         end
 
-        search_by_blob(vector, count + 1).reject { |v| v[:id] == item_id(id) }.first(count)
+        search_by_blob(vector, count + 1, with_metadata:).reject { |v| v[:id] == item_id(id) }.first(count)
       end
       alias_method :nearest, :search_id
 
@@ -274,43 +274,52 @@ module Neighbor
         @int_ids ? Integer(id) : id.to_s
       end
 
-      def search_by_blob(blob, count)
+      def search_by_blob(blob, count, with_metadata:)
+        # TODO exclude metadata when possible
         resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_by, "DIALECT", "2")
-        resp.is_a?(Hash) ? parse_results_hash(resp) : parse_results_array(resp)
+        resp.is_a?(Hash) ? parse_results_hash(resp, with_metadata:) : parse_results_array(resp, with_metadata:)
       end
 
       def search_sort_by
         @search_sort_by ||= Redis.server_type == :valkey ? [] : ["SORTBY", "__v_score"]
       end
 
-      def parse_results_hash(resp)
+      def parse_results_hash(resp, with_metadata:)
         prefix_length = nil
         resp["results"].map do |result|
           key = result["id"]
           info = result["extra_attributes"]
           prefix_length ||= find_prefix_length(key)
-          search_result(key, info, prefix_length)
+          search_result(key, info, prefix_length, with_metadata:)
         end
       end
 
-      def parse_results_array(resp)
+      def parse_results_array(resp, with_metadata:)
         prefix_length = nil
         resp.shift.times.map do |i|
           key, info = resp.shift(2)
           info = info.each_slice(2).to_h unless info.is_a?(Hash)
           prefix_length ||= find_prefix_length(key)
-          search_result(key, info, prefix_length)
+          search_result(key, info, prefix_length, with_metadata:)
         end
       end
 
-      def search_result(key, info, prefix_length)
+      def search_result(key, info, prefix_length, with_metadata:)
         score = info["__v_score"].to_f
         distance = calculate_distance(score)
 
-        {
+        result = {
           id: item_id(key[prefix_length..-1]),
           distance: distance
         }
+        if with_metadata
+          if @json
+            result[:metadata] = JSON.parse(info["$"]).except("v")
+          else
+            result[:metadata] = info.except("v", "__v_score")
+          end
+        end
+        result
       end
 
       def calculate_distance(score)
