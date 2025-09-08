@@ -121,7 +121,7 @@ Neighbor::Redis::HNSWIndex.new(
 SVS Vamana [unreleased]
 
 ```ruby
-Neighbor::Redis::SVSVamanaIndex.new(
+Neighbor::Redis::SvsVamanaIndex.new(
   name,
   construction_window_size: 200,
   graph_max_degree: 32,
