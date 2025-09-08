@@ -221,6 +221,15 @@ class IndexTest < Minitest::Test
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
+  def test_svs_vamana_float64
+    skip unless supports_svs_vamana?
+
+    error = assert_raises do
+      Neighbor::Redis::SvsVamanaIndex.create("items", dimensions: 3, distance: "l2", type: "float64", id_type: "integer")
+    end
+    assert_match "Not supported data type is given. Expected: FLOAT16, FLOAT32", error.message
+  end
+
   def test_promote
     index = create_index(distance: "l2")
     add_items(index)
