@@ -73,6 +73,40 @@ Supported values are:
 
 Vector sets always use `cosine` and return a similarity score between 1 and 0.
 
+## Attributes
+
+*Vector sets only*
+
+Add an item with attributes
+
+```ruby
+index.add(id, vector, attributes: {category: "A"})
+```
+
+Get attributes
+
+```ruby
+index.attributes(id)
+# or
+index.nearest(id, with_attributes: true)
+# or
+index.search(vector, with_attributes: true)
+```
+
+Update attributes
+
+```ruby
+index.update_attributes(id, {category: "B"})
+```
+
+Note: This replaces all existing attributes
+
+Remove attributes
+
+```ruby
+index.remove_attributes(id)
+```
+
 ## Index Types
 
 Hierarchical Navigable Small World (HNSW)
