@@ -80,11 +80,11 @@ Hierarchical Navigable Small World (HNSW)
 ```ruby
 Neighbor::Redis::HNSWIndex.new(
   name,
-  initial_cap: nil,
   m: 16,
   ef_construction: 200,
   ef_runtime: 10,
-  epsilon: 0.01
+  epsilon: 0.01,
+  initial_cap: nil
 )
 ```
 
@@ -93,8 +93,8 @@ Flat
 ```ruby
 Neighbor::Redis::FlatIndex.new(
   name,
-  initial_cap: nil,
-  block_size: 1024
+  block_size: 1024,
+  initial_cap: nil
 )
 ```
 
