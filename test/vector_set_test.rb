@@ -150,34 +150,34 @@ class VectorSetTest < Minitest::Test
     assert_equal false, vector_set.remove_attributes(2)
   end
 
-  def test_nearest
+  def test_search_id
     add_items(vector_set)
-    result = vector_set.nearest(1)
+    result = vector_set.search_id(1)
     assert_equal [3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
-  def test_nearest_attributes
+  def test_search_id_attributes
     vector_set.add(1, [1, 1, 1], attributes: {category: "A"})
     vector_set.add(2, [-1, -1, -1], attributes: {category: "B"})
     vector_set.add(3, [1, 1, 0])
 
-    result = vector_set.nearest(1, with_attributes: true)
+    result = vector_set.search_id(1, with_attributes: true)
     assert_empty result[0][:attributes]
     assert_equal ({"category" => "B"}), result[1][:attributes]
   end
 
-  def test_nearest_exact
+  def test_search_id_exact
     add_items(vector_set)
-    result = vector_set.nearest(1, exact: true)
+    result = vector_set.search_id(1, exact: true)
     assert_equal [3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
-  def test_nearest_missing
+  def test_search_id_missing
     add_items(vector_set)
     error = assert_raises do
-      vector_set.nearest(4)
+      vector_set.search_id(4)
     end
     assert_match "element not found in set", error.message
   end
@@ -250,7 +250,7 @@ class VectorSetTest < Minitest::Test
   def test_options
     vector_set = Neighbor::Redis::VectorSet.new("items", m: 16, ef_construction: 200, ef_search: 10, epsilon: 0.5, id_type: "integer")
     add_items(vector_set)
-    result = vector_set.nearest(1)
+    result = vector_set.search_id(1)
     assert_equal [3], result.map { |v| v[:id] }
     assert_elements_in_delta [0.05719095841050148], result.map { |v| v[:distance] }
   end
@@ -263,7 +263,7 @@ class VectorSetTest < Minitest::Test
       vector_set.add("3a", [1, 1, 0])
     end
     assert_match "invalid value for Integer()", error.message
-    assert_equal [2], vector_set.nearest(1).map { |v| v[:id] }
+    assert_equal [2], vector_set.search_id(1).map { |v| v[:id] }
     assert_equal [1, 2], vector_set.search([1, 1, 1]).map { |v| v[:id] }
     assert_equal [2], vector_set.links(1).last.map { |v| v[:id] }
     assert_equal [1, 2], vector_set.sample(2).sort
@@ -273,7 +273,7 @@ class VectorSetTest < Minitest::Test
     vector_set = Neighbor::Redis::VectorSet.new("items", id_type: "string")
     vector_set.add(1, [1, 1, 1])
     vector_set.add("2", [-1, -1, -1])
-    assert_equal ["2"], vector_set.nearest(1).map { |v| v[:id] }
+    assert_equal ["2"], vector_set.search_id(1).map { |v| v[:id] }
     assert_equal ["1", "2"], vector_set.search([1, 1, 1]).map { |v| v[:id] }
     assert_equal ["2"], vector_set.links(1).last.map { |v| v[:id] }
     assert_equal ["1", "2"], vector_set.sample(2).sort

@@ -145,7 +145,7 @@ module Neighbor
         end
       end
 
-      def nearest(id, count: 5)
+      def search_id(id, count: 5)
         vector =
           if @json
             s = run_command("JSON.GET", item_key(id), "$.v")
@@ -160,6 +160,7 @@ module Neighbor
 
         search_by_blob(vector, count + 1).reject { |v| v[:id] == item_id(id) }.first(count)
       end
+      alias_method :nearest, :search_id
 
       def search(vector, count: 5)
         check_dimensions(vector)

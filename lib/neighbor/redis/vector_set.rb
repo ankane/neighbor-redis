@@ -121,7 +121,7 @@ module Neighbor
         bool_result(run_command("VSETATTR", key, id, ""))
       end
 
-      def nearest(id, count: 5, with_attributes: false, ef: nil, exact: false)
+      def search_id(id, count: 5, with_attributes: false, ef: nil, exact: false)
         id = item_id(id)
         count = count.to_i
 
@@ -133,6 +133,7 @@ module Neighbor
           end
         result.first(count)
       end
+      alias_method :nearest, :search_id
 
       def search(vector, count: 5, with_attributes: false, ef: nil, exact: false)
         count = count.to_i

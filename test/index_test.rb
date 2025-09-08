@@ -121,34 +121,34 @@ class IndexTest < Minitest::Test
     assert_nil index.find(4)
   end
 
-  def test_nearest_l2
+  def test_search_id_l2
     index = create_index(distance: "l2", id_type: "integer")
     add_items(index)
-    result = index.nearest(1)
+    result = index.search_id(1)
     assert_equal [3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 1.7320507764816284], result.map { |v| v[:distance] }
   end
 
-  def test_nearest_inner_product
+  def test_search_id_inner_product
     index = create_index(distance: "inner_product", id_type: "integer")
     add_items(index)
-    result = index.nearest(1)
+    result = index.search_id(1)
     assert_equal [2, 3], result.map { |v| v[:id] }
     assert_elements_in_delta [6, 4], result.map { |v| v[:distance] }
   end
 
-  def test_nearest_cosine
+  def test_search_id_cosine
     index = create_index(distance: "cosine", id_type: "integer")
     add_items(index)
-    result = index.nearest(1)
+    result = index.search_id(1)
     assert_equal [2, 3], result.map { |v| v[:id] }
     assert_elements_in_delta [0, 0.05719095841050148], result.map { |v| v[:distance] }
   end
 
-  def test_nearest_missing
+  def test_search_id_missing
     index = create_index
     error = assert_raises(Neighbor::Redis::Error) do
-      index.nearest(4)
+      index.search_id(4)
     end
     assert_equal "Could not find item 4", error.message
   end
@@ -292,7 +292,7 @@ class IndexTest < Minitest::Test
       index.add("3a", [1, 1, 0])
     end
     assert_match "invalid value for Integer()", error.message
-    assert_equal [2], index.nearest(1).map { |v| v[:id] }
+    assert_equal [2], index.search_id(1).map { |v| v[:id] }
     assert_equal [1, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
@@ -300,7 +300,7 @@ class IndexTest < Minitest::Test
     index = create_index(distance: "l2", id_type: "string")
     index.add(1, [1, 1, 1])
     index.add("2", [-1, -1, -1])
-    assert_equal ["2"], index.nearest(1).map { |v| v[:id] }
+    assert_equal ["2"], index.search_id(1).map { |v| v[:id] }
     assert_equal ["1", "2"], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 

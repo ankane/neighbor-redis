@@ -84,7 +84,7 @@ Get attributes
 ```ruby
 index.attributes(id)
 # or
-index.nearest(id, with_attributes: true)
+index.search_id(id, with_attributes: true)
 # or
 index.search(vector, with_attributes: true)
 ```
