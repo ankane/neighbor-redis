@@ -122,7 +122,11 @@ SVS Vamana [unreleased]
 
 ```ruby
 Neighbor::Redis::SvsVamanaIndex.new(
-  name
+  name,
+  construction_window_size: 200,
+  graph_max_degree: 32,
+  search_window_size: 10,
+  epsilon: 0.01
 )
 ```
 
