@@ -147,7 +147,7 @@ class VectorSetTest < Minitest::Test
   def test_nearest
     add_items(vector_set)
     result = vector_set.nearest(1)
-    assert_equal ["3", "2"], result.map { |v| v[:id] }
+    assert_equal [3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
@@ -164,7 +164,7 @@ class VectorSetTest < Minitest::Test
   def test_nearest_exact
     add_items(vector_set)
     result = vector_set.nearest(1, exact: true)
-    assert_equal ["3", "2"], result.map { |v| v[:id] }
+    assert_equal [3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
@@ -179,7 +179,7 @@ class VectorSetTest < Minitest::Test
   def test_search
     add_items(vector_set)
     result = vector_set.search([1, 1, 1])
-    assert_equal ["1", "3", "2"], result.map { |v| v[:id] }
+    assert_equal [1, 3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
@@ -198,14 +198,14 @@ class VectorSetTest < Minitest::Test
     add_items(vector_set)
     result = vector_set.search([1, 1, 1], ef: 2)
     # still returns 3 results
-    assert_equal ["1", "3", "2"], result.map { |v| v[:id] }
+    assert_equal [1, 3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
   def test_search_exact
     add_items(vector_set)
     result = vector_set.search([1, 1, 1], exact: true)
-    assert_equal ["1", "3", "2"], result.map { |v| v[:id] }
+    assert_equal [1, 3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [1, 0.9082482755184174, 0], result.map { |v| v[:score] }
   end
 
@@ -220,7 +220,7 @@ class VectorSetTest < Minitest::Test
   def test_links
     add_items(vector_set)
     links = vector_set.links(1)
-    assert_equal ["2", "3"], links.last.map { |v| v[:id] }
+    assert_equal [2, 3], links.last.map { |v| v[:id] }
     assert_elements_in_delta [0, 0.9082482755184174], links.last.map { |v| v[:score] }
 
     assert_nil vector_set.links(4)
@@ -231,8 +231,8 @@ class VectorSetTest < Minitest::Test
     assert_empty vector_set.sample(3)
 
     add_items(vector_set)
-    assert_includes ["1", "2", "3"], vector_set.sample
-    assert_equal ["1", "2", "3"], vector_set.sample(3).sort
+    assert_includes [1, 2, 3], vector_set.sample
+    assert_equal [1, 2, 3], vector_set.sample(3).sort
   end
 
   def test_drop
@@ -242,10 +242,10 @@ class VectorSetTest < Minitest::Test
   end
 
   def test_options
-    vector_set = Neighbor::Redis::VectorSet.new("items", m: 16, ef_construction: 200, ef_runtime: 10, epsilon: 0.5)
+    vector_set = Neighbor::Redis::VectorSet.new("items", m: 16, ef_construction: 200, ef_runtime: 10, epsilon: 0.5, id_type: "integer")
     add_items(vector_set)
     result = vector_set.nearest(1)
-    assert_equal ["3"], result.map { |v| v[:id] }
+    assert_equal [3], result.map { |v| v[:id] }
     assert_elements_in_delta [0.9082482755184174], result.map { |v| v[:score] }
   end
 
@@ -276,7 +276,7 @@ class VectorSetTest < Minitest::Test
   private
 
   def vector_set
-    @vector_set ||= Neighbor::Redis::VectorSet.new("items")
+    @vector_set ||= Neighbor::Redis::VectorSet.new("items", id_type: "integer")
   end
 
   def add_items(vector_set)
