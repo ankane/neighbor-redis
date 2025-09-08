@@ -89,10 +89,10 @@ index.nearest(id, with_attributes: true)
 index.search(vector, with_attributes: true)
 ```
 
-Update attributes
+Set attributes
 
 ```ruby
-index.update_attributes(id, {category: "B"})
+index.set_attributes(id, {category: "B"})
 ```
 
 Note: This replaces all existing attributes

@@ -109,7 +109,7 @@ module Neighbor
         a ? JSON.parse(a) : nil
       end
 
-      def update_attributes(id, attributes)
+      def set_attributes(id, attributes)
         id = item_id(id)
 
         bool_result(run_command("VSETATTR", key, id, JSON.generate(attributes)))

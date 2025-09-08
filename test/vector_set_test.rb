@@ -126,17 +126,17 @@ class VectorSetTest < Minitest::Test
     assert_nil vector_set.attributes(4)
   end
 
-  def test_update_attributes
+  def test_set_attributes
     vector_set.add(1, [1, 1, 1])
     assert_nil vector_set.attributes(1)
 
-    assert_equal true, vector_set.update_attributes(1, {"category" => "A"})
+    assert_equal true, vector_set.set_attributes(1, {"category" => "A"})
     assert_equal ({"category" => "A"}), vector_set.attributes(1)
 
-    assert_equal true, vector_set.update_attributes(1, {"quantity" => 2, "size" => 1.5})
+    assert_equal true, vector_set.set_attributes(1, {"quantity" => 2, "size" => 1.5})
     assert_equal ({"quantity" => 2, "size" => 1.5}), vector_set.attributes(1)
 
-    assert_equal true, vector_set.update_attributes(1, {})
+    assert_equal true, vector_set.set_attributes(1, {})
     assert_empty vector_set.attributes(1)
   end
 
