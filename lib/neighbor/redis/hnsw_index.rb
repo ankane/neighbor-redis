@@ -1,6 +1,6 @@
 module Neighbor
   module Redis
-    class HNSWIndex < Index
+    class HnswIndex < Index
       def initialize(*args, initial_cap: nil, m: nil, ef_construction: nil, ef_runtime: nil, epsilon: nil, **options)
         super(*args, **options)
         @algorithm = "HNSW"
@@ -23,5 +23,7 @@ module Neighbor
         params
       end
     end
+
+    HNSWIndex = HnswIndex
   end
 end

@@ -8,13 +8,13 @@ class IndexTest < Minitest::Test
   end
 
   def test_create
-    index = Neighbor::Redis::HNSWIndex.new("items", dimensions: 3, distance: "l2")
+    index = Neighbor::Redis::HnswIndex.new("items", dimensions: 3, distance: "l2")
     assert_nil index.create
   end
 
   def test_create_invalid_name
     error = assert_raises(ArgumentError) do
-      Neighbor::Redis::HNSWIndex.create("items:", dimensions: 3, distance: "l2")
+      Neighbor::Redis::HnswIndex.create("items:", dimensions: 3, distance: "l2")
     end
     assert_equal "Invalid name", error.message
   end
@@ -29,7 +29,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_exists
-    index = Neighbor::Redis::HNSWIndex.new("items", dimensions: 3, distance: "l2")
+    index = Neighbor::Redis::HnswIndex.new("items", dimensions: 3, distance: "l2")
     assert_equal false, index.exists?
     index.create
     assert_equal true, index.exists?
@@ -42,7 +42,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_info_missing
-    index = Neighbor::Redis::HNSWIndex.new("items", dimensions: 3, distance: "l2")
+    index = Neighbor::Redis::HnswIndex.new("items", dimensions: 3, distance: "l2")
     error = assert_raises do
       index.info
     end
@@ -212,25 +212,25 @@ class IndexTest < Minitest::Test
   end
 
   def test_hnsw
-    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", id_type: "integer")
+    index = Neighbor::Redis::HnswIndex.create("items", dimensions: 3, distance: "l2", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_hnsw_json
-    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
+    index = Neighbor::Redis::HnswIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_hnsw_float64
-    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", type: "float64", id_type: "integer")
+    index = Neighbor::Redis::HnswIndex.create("items", dimensions: 3, distance: "l2", type: "float64", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   def test_hnsw_float64_json
-    index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", type: "float64", redis_type: "json", id_type: "integer")
+    index = Neighbor::Redis::HnswIndex.create("items", dimensions: 3, distance: "l2", type: "float64", redis_type: "json", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
@@ -268,7 +268,7 @@ class IndexTest < Minitest::Test
       assert_nil index.promote("new-items")
     end
 
-    index = Neighbor::Redis::HNSWIndex.new("new-items", dimensions: 3, distance: "l2", id_type: "integer")
+    index = Neighbor::Redis::HnswIndex.new("new-items", dimensions: 3, distance: "l2", id_type: "integer")
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
@@ -308,7 +308,7 @@ class IndexTest < Minitest::Test
 
   def create_index(**options)
     options[:distance] ||= ["l2", "inner_product", "cosine"].sample
-    Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, **options)
+    Neighbor::Redis::HnswIndex.create("items", dimensions: 3, **options)
   end
 
   def add_items(index)
