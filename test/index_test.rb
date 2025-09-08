@@ -181,6 +181,14 @@ class IndexTest < Minitest::Test
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
+  def test_svs_vamana
+    skip unless supports_svs_vamana?
+
+    index = Neighbor::Redis::SvsVamanaIndex.create("items", dimensions: 3, distance: "l2", id_type: "integer")
+    add_items(index)
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
+  end
+
   def test_flat_json
     index = Neighbor::Redis::FlatIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
     add_items(index)
@@ -189,6 +197,14 @@ class IndexTest < Minitest::Test
 
   def test_hnsw_json
     index = Neighbor::Redis::HNSWIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
+    add_items(index)
+    assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
+  end
+
+  def test_svs_vamana_json
+    skip unless supports_svs_vamana?
+
+    index = Neighbor::Redis::SvsVamanaIndex.create("items", dimensions: 3, distance: "l2", redis_type: "json", id_type: "integer")
     add_items(index)
     assert_equal [1, 3, 2], index.search([1, 1, 1]).map { |v| v[:id] }
   end
@@ -264,5 +280,9 @@ class IndexTest < Minitest::Test
       [1, 1, 2]
     ]
     index.add_all(ids, vectors)
+  end
+
+  def supports_svs_vamana?
+    server_version.to_f >= 8.2
   end
 end

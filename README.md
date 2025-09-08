@@ -118,6 +118,14 @@ Neighbor::Redis::HNSWIndex.new(
 )
 ```
 
+SVS Vamana [unreleased]
+
+```ruby
+Neighbor::Redis::SvsVamanaIndex.new(
+  name
+)
+```
+
 Flat
 
 ```ruby
