@@ -95,8 +95,6 @@ Set metadata
 index.set_metadata(id, {category: "B"})
 ```
 
-Note: This replaces all existing metadata
-
 Remove metadata
 
 ```ruby
