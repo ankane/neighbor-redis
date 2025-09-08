@@ -229,7 +229,7 @@ class IndexTest < Minitest::Test
     assert_match(/no such index|Unknown Index name/, error.message)
   end
 
-  def test_id_type
+  def test_id_type_integer
     index = create_index(distance: "l2", id_type: "integer")
     index.add(1, [1, 1, 1])
     index.add("2", [-1, -1, -1])
@@ -239,6 +239,14 @@ class IndexTest < Minitest::Test
     assert_match "invalid value for Integer()", error.message
     assert_equal [2], index.nearest(1).map { |v| v[:id] }
     assert_equal [1, 2], index.search([1, 1, 1]).map { |v| v[:id] }
+  end
+
+  def test_id_type_string
+    index = create_index(distance: "l2", id_type: "string")
+    index.add(1, [1, 1, 1])
+    index.add("2", [-1, -1, -1])
+    assert_equal ["2"], index.nearest(1).map { |v| v[:id] }
+    assert_equal ["1", "2"], index.search([1, 1, 1]).map { |v| v[:id] }
   end
 
   private
