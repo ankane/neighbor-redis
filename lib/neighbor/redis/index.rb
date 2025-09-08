@@ -208,7 +208,7 @@ module Neighbor
       end
 
       def search_sort_by
-        @search_sort_by ||= Neighbor::Redis.valkey? ? [] : ["SORTBY", "__v_score"]
+        @search_sort_by ||= Redis.valkey? ? [] : ["SORTBY", "__v_score"]
       end
 
       def parse_results_hash(resp)
