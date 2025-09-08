@@ -290,6 +290,7 @@ class VectorSetTest < Minitest::Test
     assert_equal [1, 1, 1], vector_set.find(1)
     assert_equal [-1, -1, -1], vector_set.find(2)
     assert_equal [1, 1, -1], vector_set.find(3)
+    assert_equal "bin", vector_set.info[:quant_type]
   end
 
   def test_quantization_int8
@@ -303,6 +304,7 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [1, 1, 1], vector_set.find(1)
     assert_elements_in_delta [-1, -1, -1], vector_set.find(2)
     assert_elements_in_delta [100, 10.236221313476562, 0], vector_set.find(3)
+    assert_equal "int8", vector_set.info[:quant_type]
   end
 
   private
