@@ -153,12 +153,30 @@ class IndexTest < Minitest::Test
     assert_equal "Could not find item 4", error.message
   end
 
-  def test_search
+  def test_search_l2
     index = create_index(distance: "l2", id_type: "integer")
     add_items(index)
     result = index.search([1, 1, 1])
     assert_equal [1, 3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [0, 1, 1.7320507764816284], result.map { |v| v[:distance] }
+  end
+
+  def test_search_inner_product
+    index = create_index(distance: "inner_product", id_type: "integer")
+    add_items(index)
+    result = index.search([1, 1, 1])
+    assert_equal [2, 3, 1], result.map { |v| v[:id] }
+    assert_elements_in_delta [6, 4, 3], result.map { |v| v[:distance] }
+  end
+
+  def test_search_cosine
+    index = create_index(distance: "cosine", id_type: "integer")
+    index.add(1, [1, 1, 1])
+    index.add(2, [-1, -1, -1])
+    index.add(3, [1, 1, 2])
+    result = index.search([1, 1, 1])
+    assert_equal [1, 3, 2], result.map { |v| v[:id] }
+    assert_elements_in_delta [0, 0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
   def test_search_different_dimensions
