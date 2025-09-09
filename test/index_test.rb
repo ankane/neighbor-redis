@@ -83,6 +83,7 @@ class IndexTest < Minitest::Test
     assert_equal false, index.add(1, [3, 3, 3], metadata: {})
     # TODO fix
     # assert_empty index.metadata(1)
+    assert_equal ({"category" => "A"}), index.metadata(1)
 
     error = assert_raises(ArgumentError) do
       index.add(1, [4, 4, 4], metadata: {v: [4, 4, 4]})
