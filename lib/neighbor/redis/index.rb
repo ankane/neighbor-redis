@@ -213,6 +213,12 @@ module Neighbor
           fields = run_command("HKEYS", key)
           return false if fields.empty?
 
+          fields.delete("v")
+          if fields.any?
+            # TODO use MULTI
+            run_command("HDEL", key, *fields)
+          end
+
           if metadata.any?
             args = []
             metadata.each do |k, v|
@@ -220,7 +226,7 @@ module Neighbor
             end
             run_command("HSET", key, *args) > 0
           else
-            false
+            true
           end
         end
       end

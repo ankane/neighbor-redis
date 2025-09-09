@@ -197,16 +197,10 @@ class IndexTest < Minitest::Test
     assert_equal [1, 1, 1], index.find(1)
 
     assert_equal true, index.set_metadata(1, {"quantity" => 2, "size" => 1.5})
-    # TODO fix
-    # assert_equal ({"quantity" => "2", "size" => "1.5"}), index.metadata(1)
-    assert_equal ({"category" => "A", "quantity" => "2", "size" => "1.5"}), index.metadata(1)
+    assert_equal ({"quantity" => "2", "size" => "1.5"}), index.metadata(1)
 
-    # TODO fix
-    # assert_equal true, index.set_metadata(1, {})
-    assert_equal false, index.set_metadata(1, {})
-    # TODO fix
-    # assert_empty index.metadata(1)
-    assert_equal ({"category" => "A", "quantity" => "2", "size" => "1.5"}), index.metadata(1)
+    assert_equal true, index.set_metadata(1, {})
+    assert_empty index.metadata(1)
 
     error = assert_raises(ArgumentError) do
       index.set_metadata(1, {v: [1, 1, 1]})
