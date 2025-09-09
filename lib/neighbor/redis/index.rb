@@ -152,7 +152,7 @@ module Neighbor
       end
 
       def remove_all(ids)
-        keys = ids.map { |id| item_key(id) }
+        keys = ids.to_a.map { |id| item_key(id) }
 
         run_command("DEL", *keys).to_i
       end
