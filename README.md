@@ -49,8 +49,6 @@ index.add(2, [2, 2, 2])
 index.add(3, [1, 1, 2])
 ```
 
-Note: IDs are stored and returned as strings (uses less total memory)
-
 Get the nearest neighbors to a vector
 
 ```ruby
@@ -61,6 +59,12 @@ Get the nearest neighbors to an item
 
 ```ruby
 index.nearest(1, count: 5)
+```
+
+IDs are treated as strings by default, but can also be treated as integers [unreleased]
+
+```ruby
+Neighbor::Redis::HNSWIndex.new("items", id_type: "integer", ...)
 ```
 
 ## Distance
