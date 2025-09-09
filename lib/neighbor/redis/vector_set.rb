@@ -118,6 +118,7 @@ module Neighbor
         bool_result(run_command("VREM", key, id))
       end
 
+      # TODO pipeline
       def remove_all(ids)
         ids.map { |id| remove(id) }
       end

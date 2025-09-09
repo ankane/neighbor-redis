@@ -151,35 +151,42 @@ module Neighbor
       end
 
       def remove_all(ids)
-        run_command("DEL", *ids.map { |id| item_key(id) }).to_i
+        keys = ids.map { |id| item_key(id) }
+
+        run_command("DEL", *keys).to_i
       end
 
       def find(id)
+        key = item_key(id)
+
         if @json
-          s = run_command("JSON.GET", item_key(id), "$.v")
+          s = run_command("JSON.GET", key, "$.v")
           JSON.parse(s)[0] if s
         else
-          s = run_command("HGET", item_key(id), "v")
+          s = run_command("HGET", key, "v")
           from_binary(s) if s
         end
       end
 
       def metadata(id)
+        key = item_key(id)
+
         if @json
-          v = run_command("JSON.GET", item_key(id))
+          v = run_command("JSON.GET", key)
           JSON.parse(v).except("v") if v
         else
-          hash_result(run_command("HGETALL", item_key(id))).except("v")
+          hash_result(run_command("HGETALL", key)).except("v")
         end
       end
 
       def set_metadata(id, metadata)
+        key = item_key(id)
+
         # TODO DRY
         metadata = metadata.transform_keys(&:to_s)
         raise ArgumentError, "invalid metadata" if metadata.key?("v")
 
         # TODO use WATCH
-        key = item_key(id)
         return false if run_command("EXISTS", key) == 0
 
         if @json
@@ -208,7 +215,7 @@ module Neighbor
           keys -= ["v"]
           if keys.any?
             # merge with null deletes key
-            run_command("JSON.MERGE", item_key(id), "$", JSON.generate(keys.to_h { |k| [k, nil] })) == "OK"
+            run_command("JSON.MERGE", key, "$", JSON.generate(keys.to_h { |k| [k, nil] })) == "OK"
           else
             true
           end
@@ -233,19 +240,22 @@ module Neighbor
       end
 
       def search_id(id, count: 5, with_metadata: false)
+        id = item_id(id)
+        key = item_key(id)
+
         vector =
           if @json
-            s = run_command("JSON.GET", item_key(id), "$.v")
+            s = run_command("JSON.GET", key, "$.v")
             to_binary(JSON.parse(s)[0]) if s
           else
-            run_command("HGET", item_key(id), "v")
+            run_command("HGET", key, "v")
           end
 
         unless vector
           raise Error, "Could not find item #{id}"
         end
 
-        search_command(vector, count + 1, with_metadata:).reject { |v| v[:id] == item_id(id) }.first(count)
+        search_command(vector, count + 1, with_metadata:).reject { |v| v[:id] == id }.first(count)
       end
       alias_method :nearest, :search_id
 
