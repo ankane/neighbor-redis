@@ -156,20 +156,20 @@ module Neighbor
         bool_result(run_command("VSETATTR", key, id, ""))
       end
 
-      def search(vector, count: 5, with_metadata: false, ef: nil, exact: false, _filter: nil)
+      def search(vector, count: 5, with_metadata: false, ef: nil, exact: false, _filter: nil, _ef_filter: nil)
         count = count.to_i
 
-        search_command(["FP32", to_binary(vector)], count:, with_metadata:, ef:, exact:, _filter:).map do |k, v|
+        search_command(["FP32", to_binary(vector)], count:, with_metadata:, ef:, exact:, _filter:, _ef_filter:).map do |k, v|
           search_result(k, v, with_metadata:)
         end
       end
 
-      def search_id(id, count: 5, with_metadata: false, ef: nil, exact: false, _filter: nil)
+      def search_id(id, count: 5, with_metadata: false, ef: nil, exact: false, _filter: nil, _ef_filter: nil)
         id = item_id(id)
         count = count.to_i
 
         result =
-          search_command(["ELE", id], count: count + 1, with_metadata:, ef:, exact:, _filter:).filter_map do |k, v|
+          search_command(["ELE", id], count: count + 1, with_metadata:, ef:, exact:, _filter:, _ef_filter:).filter_map do |k, v|
             if k != id.to_s
               search_result(k, v, with_metadata:)
             end
@@ -213,13 +213,14 @@ module Neighbor
         vector.pack("e*")
       end
 
-      def search_command(args, count:, with_metadata:, ef:, exact:, _filter:)
+      def search_command(args, count:, with_metadata:, ef:, exact:, _filter:, _ef_filter:)
         ef = @ef_search if ef.nil?
 
         args << "WITHATTRIBS" if with_metadata
         args.push("EF", ef) if ef
         args.push("EPSILON", @epsilon) if @epsilon
         args.push("FILTER", _filter) if _filter
+        args.push("FILTER_EF", _ef_filter) if _ef_filter
         args << "TRUTH" if exact
 
         result = run_command("VSIM", key, *args, "WITHSCORES", "COUNT", count)
