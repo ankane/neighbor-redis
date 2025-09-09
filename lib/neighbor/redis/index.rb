@@ -200,6 +200,13 @@ module Neighbor
           keys = run_command("JSON.OBJKEYS", key)
           return false unless keys
 
+          keys.each do |k|
+            next if k == "v"
+
+            # safe to modify in-place
+            metadata[k] = nil unless metadata.key?(k)
+          end
+
           run_command("JSON.MERGE", key, "$", JSON.generate(metadata)) == "OK"
         else
           # TODO use WATCH
@@ -226,7 +233,7 @@ module Neighbor
           keys = run_command("JSON.OBJKEYS", key)
           return false unless keys
 
-          keys -= ["v"]
+          keys.delete("v")
           if keys.any?
             # merge with null deletes key
             run_command("JSON.MERGE", key, "$", JSON.generate(keys.to_h { |k| [k, nil] })) == "OK"
@@ -238,7 +245,7 @@ module Neighbor
           fields = run_command("HKEYS", key)
           return false if fields.empty?
 
-          fields -= ["v"]
+          fields.delete("v")
           if fields.any?
             run_command("HDEL", key, *fields) > 0
           else
