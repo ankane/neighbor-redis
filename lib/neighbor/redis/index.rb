@@ -6,7 +6,7 @@ module Neighbor
         @global_prefix = "neighbor:items:"
         @prefix = "#{@global_prefix}#{name}:"
 
-        @dimensions = dimensions
+        @dimensions = dimensions.to_i
 
         unless distance.nil?
           @distance_metric =
