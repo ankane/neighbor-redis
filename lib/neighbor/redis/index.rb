@@ -304,7 +304,7 @@ module Neighbor
 
       def search_command(blob, count, with_metadata:)
         return_args = with_metadata ? [] : ["RETURN", 1, "__v_score"]
-        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{Integer(count)} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_args, *return_args, "DIALECT", "2")
+        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_args, *return_args, "DIALECT", "2")
         if resp.is_a?(Hash)
           parse_results_hash(resp, with_metadata:)
         else
