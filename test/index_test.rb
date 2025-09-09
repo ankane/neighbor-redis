@@ -395,6 +395,14 @@ class IndexTest < Minitest::Test
     assert_equal "Could not find item 4", error.message
   end
 
+  def test_search_id_missing_json
+    index = create_index(redis_type: "json")
+    error = assert_raises(Neighbor::Redis::Error) do
+      index.search_id(4)
+    end
+    assert_equal "Could not find item 4", error.message
+  end
+
   def test_json
     index = create_index(redis_type: "json")
     assert_equal true, index.add(1, [1, 1, 1])
