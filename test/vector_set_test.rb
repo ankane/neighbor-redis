@@ -214,7 +214,7 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [0, 0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
-  def test_search_metadata
+  def test_search_with_metadata
     vector_set.add(1, [1, 1, 1], metadata: {category: "A", quantity: 2})
     vector_set.add(2, [-1, -1, -1], metadata: {category: "B", quantity: 4})
     vector_set.add(3, [1, 1, 0])
@@ -223,6 +223,12 @@ class VectorSetTest < Minitest::Test
     assert_equal ({"category" => "A", "quantity" => 2}), result[0][:metadata]
     assert_empty result[1][:metadata]
     assert_equal ({"category" => "B", "quantity" => 4}), result[2][:metadata]
+  end
+
+  def test_search_filter
+    vector_set.add(1, [1, 1, 1], metadata: {category: "A", quantity: 2})
+    vector_set.add(2, [-1, -1, -1], metadata: {category: "B", quantity: 4})
+    vector_set.add(3, [1, 1, 0])
 
     result = vector_set.search([1, 1, 1], _filter: ".category == 'B'")
     assert_equal [2], result.map { |v| v[:id] }
@@ -264,7 +270,7 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [0.05719095841050148, 2], result.map { |v| v[:distance] }
   end
 
-  def test_search_id_metadata
+  def test_search_id_with_metadata
     vector_set.add(1, [1, 1, 1], metadata: {category: "A", quantity: 2})
     vector_set.add(2, [-1, -1, -1], metadata: {category: "B", quantity: 4})
     vector_set.add(3, [1, 1, 0])
@@ -272,6 +278,12 @@ class VectorSetTest < Minitest::Test
     result = vector_set.search_id(1, with_metadata: true)
     assert_empty result[0][:metadata]
     assert_equal ({"category" => "B", "quantity" => 4}), result[1][:metadata]
+  end
+
+  def test_search_id_filter
+    vector_set.add(1, [1, 1, 1], metadata: {category: "A", quantity: 2})
+    vector_set.add(2, [-1, -1, -1], metadata: {category: "B", quantity: 4})
+    vector_set.add(3, [1, 1, 0])
 
     result = vector_set.search_id(1, _filter: ".category == 'B'")
     assert_equal [2], result.map { |v| v[:id] }
