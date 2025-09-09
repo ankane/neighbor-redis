@@ -208,11 +208,14 @@ module Neighbor
             true
           end
         else
-          fields = run_command("HKEYS", key) - ["v"]
+          fields = run_command("HKEYS", key)
+          return false if fields.empty?
+
+          fields -= ["v"]
           if fields.any?
             run_command("HDEL", key, *fields) > 0
           else
-            false
+            true
           end
         end
       end
