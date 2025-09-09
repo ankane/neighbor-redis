@@ -256,6 +256,8 @@ class IndexTest < Minitest::Test
 
     assert_equal true, index.remove_metadata(1)
     assert_empty index.metadata(1)
+    assert_equal [1, 1, 1], index.find(1)
+    assert_equal 1, index.count
 
     assert_equal false, index.remove_metadata(2)
   end
@@ -269,6 +271,8 @@ class IndexTest < Minitest::Test
 
     assert_equal true, index.remove_metadata(1)
     assert_empty index.metadata(1)
+    assert_equal [1, 1, 1], index.find(1)
+    assert_equal 1, index.count
 
     assert_equal false, index.remove_metadata(2)
   end
