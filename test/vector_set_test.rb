@@ -206,6 +206,9 @@ class VectorSetTest < Minitest::Test
     assert_equal ({"category" => "A"}), result[0][:metadata]
     assert_empty result[1][:metadata]
     assert_equal ({"category" => "B"}), result[2][:metadata]
+
+    result = vector_set.search([1, 1, 1], _filter: ".category == 'B'")
+    assert_equal [2], result.map { |v| v[:id] }
   end
 
   def test_search_ef
@@ -246,6 +249,9 @@ class VectorSetTest < Minitest::Test
     result = vector_set.search_id(1, with_metadata: true)
     assert_empty result[0][:metadata]
     assert_equal ({"category" => "B"}), result[1][:metadata]
+
+    result = vector_set.search_id(1, _filter: ".category == 'B'")
+    assert_equal [2], result.map { |v| v[:id] }
   end
 
   def test_search_id_exact
