@@ -178,7 +178,7 @@ module Neighbor
         metadata = metadata.transform_keys(&:to_s)
         raise ArgumentError, "invalid metadata" if metadata.key?("v")
 
-        # TODO use watch?
+        # TODO use WATCH
         key = item_key(id)
         return false if run_command("EXISTS", key) == 0
 
