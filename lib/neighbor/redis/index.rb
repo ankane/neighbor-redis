@@ -176,14 +176,15 @@ module Neighbor
           v = run_command("JSON.GET", key)
           JSON.parse(v).except("v") if v
         else
-          hash_result(run_command("HGETALL", key)).except("v")
+          v = hash_result(run_command("HGETALL", key))
+          v.except("v") if v.any?
         end
       end
 
       def set_metadata(id, metadata)
         key = item_key(id)
 
-        # TODO DRY
+        # TODO DRY with add_all
         metadata = metadata.transform_keys(&:to_s)
         raise ArgumentError, "invalid metadata" if metadata.key?("v")
 

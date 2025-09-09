@@ -158,7 +158,7 @@ class IndexTest < Minitest::Test
     assert_equal ({"category" => "A"}), index.metadata(1)
     assert_equal ({"category" => "B"}), index.metadata(2)
     assert_empty index.metadata(3)
-    assert_empty index.metadata(4)
+    assert_nil index.metadata(4)
   end
 
   def test_metadata_json
