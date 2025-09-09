@@ -13,4 +13,4 @@ recommender.fit(data)
 
 index.add_all(recommender.item_ids, recommender.item_factors)
 
-pp index.nearest("Star Wars (1977)").map { |v| v[:id] }
+pp index.search_id("Star Wars (1977)").map { |v| v[:id] }
