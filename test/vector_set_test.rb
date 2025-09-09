@@ -180,6 +180,13 @@ class VectorSetTest < Minitest::Test
     assert_empty vector_set.metadata(1)
   end
 
+  def test_set_metadata_missing
+    vector_set.add(1, [1, 1, 1])
+    assert_equal false, vector_set.set_metadata(2, {})
+    assert_equal false, vector_set.set_metadata(2, {"category" => "A"})
+    assert_equal 1, vector_set.count
+  end
+
   def test_remove_metadata
     vector_set.add(1, [1, 1, 1], metadata: {"category" => "A"})
     assert_equal ({"category" => "A"}), vector_set.metadata(1)
