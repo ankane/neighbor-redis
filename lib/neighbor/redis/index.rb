@@ -59,13 +59,13 @@ module Neighbor
           end
       end
 
-      def self.create(...)
-        index = new(...)
-        index.create
+      def self.create(*args, _schema: nil, **options)
+        index = new(*args, **options)
+        index.create(_schema:)
         index
       end
 
-      def create
+      def create(_schema: nil)
         params = {
           "TYPE" => @float64 ? "FLOAT64" : "FLOAT32",
           "DIM" => @dimensions,
@@ -79,6 +79,17 @@ module Neighbor
         command.push("v", "VECTOR", @algorithm, params.size * 2)
         params.each do |k, v|
           command.push(k, v)
+        end
+        (_schema || {}).each do |k, v|
+          k = k.to_s
+          # TODO improve
+          unless k.match?(/\A\w+\z/)
+            raise ArgumentError, "invalid schema"
+          end
+          command.push("$.#{k}", "AS") if @json
+          command.push(k, v.to_s)
+          # TODO figure out how to handle separator for hashes
+          # command.push("SEPARATOR", "") if !@json
         end
         run_command(*command)
         nil
@@ -260,13 +271,13 @@ module Neighbor
         end
       end
 
-      def search(vector, count: 5, with_metadata: false)
+      def search(vector, count: 5, with_metadata: false, _filter: nil)
         check_dimensions(vector)
 
-        search_command(to_binary(vector), count, with_metadata:)
+        search_command(to_binary(vector), count, with_metadata:, _filter:)
       end
 
-      def search_id(id, count: 5, with_metadata: false)
+      def search_id(id, count: 5, with_metadata: false, _filter: nil)
         id = item_id(id)
         key = item_key(id)
 
@@ -282,7 +293,7 @@ module Neighbor
           raise Error, "Could not find item #{id}"
         end
 
-        search_command(vector, count + 1, with_metadata:).reject { |v| v[:id] == id }.first(count)
+        search_command(vector, count + 1, with_metadata:, _filter:).reject { |v| v[:id] == id }.first(count)
       end
       alias_method :nearest, :search_id
 
@@ -320,9 +331,10 @@ module Neighbor
         @int_ids ? Integer(id) : id.to_s
       end
 
-      def search_command(blob, count, with_metadata:)
+      def search_command(blob, count, with_metadata:, _filter:)
+        filter = _filter ? "(#{_filter})" : "*"
         return_args = with_metadata ? [] : ["RETURN", 1, "__v_score"]
-        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_args, *return_args, "DIALECT", "2")
+        resp = run_command("FT.SEARCH", @index_name, "#{filter}=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_args, *return_args, "DIALECT", "2")
         if resp.is_a?(Hash)
           parse_results_hash(resp, with_metadata:)
         else

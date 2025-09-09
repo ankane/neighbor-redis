@@ -318,7 +318,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_search_metadata
-    index = create_index(distance: "cosine")
+    index = create_index(distance: "cosine", _schema: {category: "TAG"})
     index.add(1, [1, 1, 1], metadata: {category: "A"})
     index.add(2, [-1, -1, -1], metadata: {category: "B"})
     index.add(3, [1, 1, 0])
@@ -327,10 +327,13 @@ class IndexTest < Minitest::Test
     assert_equal ({"category" => "A"}), result[0][:metadata]
     assert_empty result[1][:metadata]
     assert_equal ({"category" => "B"}), result[2][:metadata]
+
+    result = index.search([1, 1, 1], _filter: "@category:{B}")
+    assert_equal [2], result.map { |v| v[:id] }
   end
 
   def test_search_metadata_json
-    index = create_index(distance: "cosine", redis_type: "json")
+    index = create_index(distance: "cosine", _schema: {category: "TAG"}, redis_type: "json")
     index.add(1, [1, 1, 1], metadata: {category: "A"})
     index.add(2, [-1, -1, -1], metadata: {category: "B"})
     index.add(3, [1, 1, 0])
@@ -339,6 +342,9 @@ class IndexTest < Minitest::Test
     assert_equal ({"category" => "A"}), result[0][:metadata]
     assert_empty result[1][:metadata]
     assert_equal ({"category" => "B"}), result[2][:metadata]
+
+    result = index.search([1, 1, 1], _filter: "@category:{B}")
+    assert_equal [2], result.map { |v| v[:id] }
   end
 
   def test_search_different_dimensions
@@ -376,7 +382,7 @@ class IndexTest < Minitest::Test
   end
 
   def test_search_id_metadata
-    index = create_index(distance: "cosine")
+    index = create_index(distance: "cosine", _schema: {category: "TAG"})
     index.add(1, [1, 1, 1], metadata: {category: "A"})
     index.add(2, [-1, -1, -1], metadata: {category: "B"})
     index.add(3, [1, 1, 0])
@@ -384,10 +390,13 @@ class IndexTest < Minitest::Test
     result = index.search_id(1, with_metadata: true)
     assert_empty result[0][:metadata]
     assert_equal ({"category" => "B"}), result[1][:metadata]
+
+    result = index.search_id(1, _filter: "@category:{B}")
+    assert_equal [2], result.map { |v| v[:id] }
   end
 
   def test_search_id_metadata_json
-    index = create_index(distance: "cosine", redis_type: "json")
+    index = create_index(distance: "cosine", _schema: {category: "TAG"}, redis_type: "json")
     index.add(1, [1, 1, 1], metadata: {category: "A"})
     index.add(2, [-1, -1, -1], metadata: {category: "B"})
     index.add(3, [1, 1, 0])
@@ -395,6 +404,9 @@ class IndexTest < Minitest::Test
     result = index.search_id(1, with_metadata: true)
     assert_empty result[0][:metadata]
     assert_equal ({"category" => "B"}), result[1][:metadata]
+
+    result = index.search_id(1, _filter: "@category:{B}")
+    assert_equal [2], result.map { |v| v[:id] }
   end
 
   def test_search_id_missing
