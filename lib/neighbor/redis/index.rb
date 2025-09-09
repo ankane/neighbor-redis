@@ -80,10 +80,11 @@ module Neighbor
         params.each do |k, v|
           command.push(k, v)
         end
+
         (_schema || {}).each do |k, v|
           k = k.to_s
           # TODO improve
-          unless k.match?(/\A\w+\z/)
+          if k == "v" || !k.match?(/\A\w+\z/)
             raise ArgumentError, "invalid schema"
           end
           command.push("$.#{k}", "AS") if @json
@@ -91,6 +92,7 @@ module Neighbor
           # TODO figure out how to handle separator for hashes
           # command.push("SEPARATOR", "") if !@json
         end
+
         run_command(*command)
         nil
       rescue => e
