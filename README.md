@@ -220,6 +220,12 @@ Remove multiple items
 index.remove_all(ids)
 ```
 
+Count items [unreleased]
+
+```ruby
+index.count
+```
+
 Drop the index
 
 ```ruby
