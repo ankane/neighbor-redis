@@ -112,9 +112,24 @@ module Neighbor
         false
       end
 
-      # TODO fix nested for RESP2
       def info
-        hash_result(run_command("FT.INFO", @index_name))
+        info = run_command("FT.INFO", @index_name)
+        if info.is_a?(Hash)
+          info
+        else
+          # for RESP2
+          info = hash_result(info)
+          ["index_definition", "gc_stats" ,"cursor_stats", "dialect_stats", "Index Errors"].each do |k|
+            info[k] = hash_result(info[k]) if info[k]
+          end
+          ["attributes", "field statistics"].each do |k|
+            info[k]&.map! { |v| hash_result(v) }
+          end
+          info["field statistics"]&.each do |v|
+            v["Index Errors"] = hash_result(v["Index Errors"]) if v["Index Errors"]
+          end
+          info
+        end
       end
 
       def count
