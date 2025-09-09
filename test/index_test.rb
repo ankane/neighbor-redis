@@ -320,7 +320,7 @@ class IndexTest < Minitest::Test
   def test_search_metadata
     skip if dragonfly?
 
-    index = create_index(distance: "cosine", _schema: {category: "TAG", quantity: "NUMERIC"})
+    index = create_index(distance: "cosine", _schema: {category: "TAG", quantity: "NUMERIC"}, id_type: "integer")
     index.add(1, [1, 1, 1], metadata: {category: "A", quantity: 2})
     index.add(2, [-1, -1, -1], metadata: {category: "B", quantity: 4})
     index.add(3, [1, 1, 0])
@@ -343,7 +343,7 @@ class IndexTest < Minitest::Test
   def test_search_metadata_json
     skip if dragonfly?
 
-    index = create_index(distance: "cosine", _schema: {category: "TAG", quantity: "NUMERIC"}, redis_type: "json")
+    index = create_index(distance: "cosine", _schema: {category: "TAG", quantity: "NUMERIC"}, redis_type: "json", id_type: "integer")
     index.add(1, [1, 1, 1], metadata: {category: "A", quantity: 2})
     index.add(2, [-1, -1, -1], metadata: {category: "B", quantity: 4})
     index.add(3, [1, 1, 0])
@@ -400,7 +400,7 @@ class IndexTest < Minitest::Test
   def test_search_id_metadata
     skip if dragonfly?
 
-    index = create_index(distance: "cosine", _schema: {category: "TAG", quantity: "NUMERIC"})
+    index = create_index(distance: "cosine", _schema: {category: "TAG", quantity: "NUMERIC"}, id_type: "integer")
     index.add(1, [1, 1, 1], metadata: {category: "A", quantity: 2})
     index.add(2, [-1, -1, -1], metadata: {category: "B", quantity: 4})
     index.add(3, [1, 1, 0])
@@ -422,7 +422,7 @@ class IndexTest < Minitest::Test
   def test_search_id_metadata_json
     skip if dragonfly?
 
-    index = create_index(distance: "cosine", _schema: {category: "TAG", quantity: "NUMERIC"}, redis_type: "json")
+    index = create_index(distance: "cosine", _schema: {category: "TAG", quantity: "NUMERIC"}, redis_type: "json", id_type: "integer")
     index.add(1, [1, 1, 1], metadata: {category: "A", quantity: 2})
     index.add(2, [-1, -1, -1], metadata: {category: "B", quantity: 4})
     index.add(3, [1, 1, 0])

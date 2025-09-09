@@ -1,7 +1,7 @@
 module Neighbor
   module Redis
     class Index
-      def initialize(name, dimensions:, distance:, type: "float32", redis_type: "hash", id_type: "integer")
+      def initialize(name, dimensions:, distance:, type: "float32", redis_type: "hash", id_type: "string")
         @index_name = index_name(name)
         @global_prefix = "neighbor:items:"
         @prefix = "#{@global_prefix}#{name}:"
