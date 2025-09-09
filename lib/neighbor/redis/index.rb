@@ -220,7 +220,7 @@ module Neighbor
       def search(vector, count: 5, with_metadata: false)
         check_dimensions(vector)
 
-        search_by_blob(to_binary(vector), count, with_metadata:)
+        search_command(to_binary(vector), count, with_metadata:)
       end
 
       def search_id(id, count: 5, with_metadata: false)
@@ -236,7 +236,7 @@ module Neighbor
           raise Error, "Could not find item #{id}"
         end
 
-        search_by_blob(vector, count + 1, with_metadata:).reject { |v| v[:id] == item_id(id) }.first(count)
+        search_command(vector, count + 1, with_metadata:).reject { |v| v[:id] == item_id(id) }.first(count)
       end
       alias_method :nearest, :search_id
 
@@ -274,7 +274,7 @@ module Neighbor
         @int_ids ? Integer(id) : id.to_s
       end
 
-      def search_by_blob(blob, count, with_metadata:)
+      def search_command(blob, count, with_metadata:)
         return_args = with_metadata ? [] : ["RETURN", 1, "__v_score"]
         resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_by, *return_args, "DIALECT", "2")
         resp.is_a?(Hash) ? parse_results_hash(resp, with_metadata:) : parse_results_array(resp, with_metadata:)
