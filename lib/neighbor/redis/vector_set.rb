@@ -118,9 +118,16 @@ module Neighbor
         bool_result(run_command("VREM", key, id))
       end
 
-      # TODO pipeline
       def remove_all(ids)
-        ids.map { |id| remove(id) }
+        ids = ids.to_a.map { |v| item_id(v) }
+
+        result =
+          client.pipelined do |pipeline|
+            ids.each do |id|
+              pipeline.call("VREM", key, id)
+            end
+          end
+        result.map { |v| bool_result(v) }
       end
 
       def find(id)
