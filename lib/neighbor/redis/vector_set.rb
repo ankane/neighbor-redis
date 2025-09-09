@@ -75,13 +75,13 @@ module Neighbor
       end
 
       def add_all(ids, vectors, metadata: nil)
+        # perform checks first to reduce chance of non-atomic updates
         ids = ids.to_a.map { |v| item_id(v) }
         vectors = vectors.to_a
         metadata = metadata.to_a if metadata
 
         raise ArgumentError, "different sizes" if ids.size != vectors.size
 
-        # check first to avoid non-atomic update if different
         if vectors.size > 1
           dimensions = vectors.first.size
           unless vectors.all? { |v| v.size == dimensions }
@@ -119,6 +119,7 @@ module Neighbor
       end
 
       def remove_all(ids)
+        # perform checks first to reduce chance of non-atomic updates
         ids = ids.to_a.map { |v| item_id(v) }
 
         result =

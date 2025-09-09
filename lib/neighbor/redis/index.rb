@@ -114,6 +114,7 @@ module Neighbor
       end
 
       def add_all(ids, vectors, metadata: nil)
+        # perform checks first to reduce chance of non-atomic updates
         ids = ids.to_a.map { |v| item_id(v) }
         vectors = vectors.to_a
         metadata = metadata.to_a if metadata
