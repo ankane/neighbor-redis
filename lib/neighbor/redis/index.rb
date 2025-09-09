@@ -304,12 +304,16 @@ module Neighbor
 
       def search_command(blob, count, with_metadata:)
         return_args = with_metadata ? [] : ["RETURN", 1, "__v_score"]
-        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_by, *return_args, "DIALECT", "2")
-        resp.is_a?(Hash) ? parse_results_hash(resp, with_metadata:) : parse_results_array(resp, with_metadata:)
+        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_args, *return_args, "DIALECT", "2")
+        if resp.is_a?(Hash)
+          parse_results_hash(resp, with_metadata:)
+        else
+          parse_results_array(resp, with_metadata:)
+        end
       end
 
-      def search_sort_by
-        @search_sort_by ||= Redis.server_type == :valkey ? [] : ["SORTBY", "__v_score"]
+      def search_sort_args
+        @search_sort_args ||= Redis.server_type == :valkey ? [] : ["SORTBY", "__v_score"]
       end
 
       def parse_results_hash(resp, with_metadata:)
