@@ -114,7 +114,7 @@ module Neighbor
       end
 
       def add_all(ids, vectors, metadata: nil)
-        ids = ids.to_a
+        ids = ids.to_a.map { |v| item_id(v) }
         vectors = vectors.to_a
         metadata = metadata.to_a if metadata
 
