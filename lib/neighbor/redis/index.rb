@@ -201,6 +201,7 @@ module Neighbor
         key = item_key(id)
 
         if @json
+          # TODO use WATCH
           keys = run_command("JSON.OBJKEYS", key)
           return false unless keys
 
@@ -212,6 +213,7 @@ module Neighbor
             true
           end
         else
+          # TODO use WATCH
           fields = run_command("HKEYS", key)
           return false if fields.empty?
 
