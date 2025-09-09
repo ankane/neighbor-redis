@@ -228,9 +228,9 @@ class VectorSetTest < Minitest::Test
     assert_equal [2], result.map { |v| v[:id] }
   end
 
-  def test_search_ef
+  def test_search_ef_search
     add_items(vector_set)
-    result = vector_set.search([1, 1, 1], ef: 2)
+    result = vector_set.search([1, 1, 1], ef_search: 2)
     # still returns 3 results
     assert_equal [1, 3, 2], result.map { |v| v[:id] }
     assert_elements_in_delta [0, 0.05719095841050148, 2], result.map { |v| v[:distance] }
