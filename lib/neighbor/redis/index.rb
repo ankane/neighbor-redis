@@ -147,6 +147,13 @@ module Neighbor
         result.map { |v| v.is_a?(String) ? v == "OK" : v > 0 }
       end
 
+      def member?(id)
+        key = item_key(id)
+
+        run_command("EXISTS", key) == 1
+      end
+      alias_method :include?, :member?
+
       def remove(id)
         remove_all([id]) == 1
       end

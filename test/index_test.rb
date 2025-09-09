@@ -123,6 +123,20 @@ class IndexTest < Minitest::Test
     assert_equal 0, index.count
   end
 
+  def test_member
+    index = create_index
+    add_items(index)
+    assert_equal true, index.member?(2)
+    assert_equal false, index.member?(4)
+  end
+
+  def test_include
+    index = create_index(redis_type: "json")
+    add_items(index)
+    assert_equal true, index.include?(2)
+    assert_equal false, index.include?(4)
+  end
+
   def test_remove
     index = create_index(distance: "l2", id_type: "integer")
     add_items(index)
