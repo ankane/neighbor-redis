@@ -197,6 +197,12 @@ class VectorSetTest < Minitest::Test
     assert_equal false, vector_set.remove_metadata(2)
   end
 
+  def test_remove_metadata_missing
+    vector_set.add(1, [1, 1, 1])
+    assert_equal false, vector_set.remove_metadata(2)
+    assert_equal 1, vector_set.count
+  end
+
   def test_search
     add_items(vector_set)
     result = vector_set.search([1, 1, 1])

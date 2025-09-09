@@ -178,15 +178,19 @@ module Neighbor
         metadata = metadata.transform_keys(&:to_s)
         raise ArgumentError, "invalid metadata" if metadata.key?("v")
 
+        # TODO use watch?
+        key = item_key(id)
+        return false if run_command("EXISTS", key) == 0
+
         if @json
-          run_command("JSON.MERGE", item_key(id), "$", JSON.generate(metadata)) == "OK"
+          run_command("JSON.MERGE", key, "$", JSON.generate(metadata)) == "OK"
         else
           args = []
           metadata.each do |k, v|
             args.push(k, v)
           end
           if args.any?
-            run_command("HSET", item_key(id), *args) > 0
+            run_command("HSET", key, *args) > 0
           else
             false
           end
