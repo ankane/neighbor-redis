@@ -275,8 +275,8 @@ module Neighbor
       end
 
       def search_by_blob(blob, count, with_metadata:)
-        # TODO exclude metadata when possible
-        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_by, "DIALECT", "2")
+        return_args = with_metadata ? [] : ["RETURN", 1, "__v_score"]
+        resp = run_command("FT.SEARCH", @index_name, "*=>[KNN #{count.to_i} @v $BLOB AS __v_score]", "PARAMS", "2", "BLOB", blob, *search_sort_by, *return_args, "DIALECT", "2")
         resp.is_a?(Hash) ? parse_results_hash(resp, with_metadata:) : parse_results_array(resp, with_metadata:)
       end
 
