@@ -193,11 +193,11 @@ module Neighbor
         if @json
           run_command("JSON.MERGE", key, "$", JSON.generate(metadata)) == "OK"
         else
-          args = []
-          metadata.each do |k, v|
-            args.push(k, v)
-          end
-          if args.any?
+          if metadata.any?
+            args = []
+            metadata.each do |k, v|
+              args.push(k, v)
+            end
             run_command("HSET", key, *args) > 0
           else
             false
