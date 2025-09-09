@@ -108,9 +108,10 @@ class IndexTest < Minitest::Test
   def test_add_all_different_dimensions
     index = create_index
     error = assert_raises(ArgumentError) do
-      index.add_all([4], [[1, 2]])
+      index.add_all([1, 4], [[1, 1, 1], [1, 2]])
     end
     assert_equal "expected 3 dimensions", error.message
+    assert_equal 0, index.count
   end
 
   def test_add_all_different_sizes
@@ -119,6 +120,7 @@ class IndexTest < Minitest::Test
       index.add_all([1, 2], [[1, 2, 3]])
     end
     assert_equal "different sizes", error.message
+    assert_equal 0, index.count
   end
 
   def test_remove
