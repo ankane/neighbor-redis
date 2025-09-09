@@ -23,15 +23,15 @@ class VectorSetTest < Minitest::Test
   def test_info
     vector_set.add(1, [1, 1, 1])
     info = vector_set.info
-    assert_equal "f32", info[:quant_type]
-    assert_equal 16, info[:hnsw_m]
-    assert_equal 3, info[:vector_dim]
-    assert_equal 0, info[:projection_input_dim]
-    assert_equal 1, info[:size]
-    assert_kind_of Integer, info[:max_level]
-    assert_equal 0, info[:attributes_count]
-    assert_kind_of Integer, info[:vset_uid]
-    assert_equal 1, info[:hnsw_max_node_uid]
+    assert_equal "f32", info["quant-type"]
+    assert_equal 16, info["hnsw-m"]
+    assert_equal 3, info["vector-dim"]
+    assert_equal 0, info["projection-input-dim"]
+    assert_equal 1, info["size"]
+    assert_kind_of Integer, info["max-level"]
+    assert_equal 0, info["attributes-count"]
+    assert_kind_of Integer, info["vset-uid"]
+    assert_equal 1, info["hnsw-max-node-uid"]
   end
 
   def test_info_missing
@@ -353,7 +353,7 @@ class VectorSetTest < Minitest::Test
     assert_equal [1, 1, 1], vector_set.find(1)
     assert_equal [-1, -1, -1], vector_set.find(2)
     assert_equal [1, 1, -1], vector_set.find(3)
-    assert_equal "bin", vector_set.info[:quant_type]
+    assert_equal "bin", vector_set.info["quant-type"]
   end
 
   def test_quantization_int8
@@ -367,7 +367,7 @@ class VectorSetTest < Minitest::Test
     assert_elements_in_delta [1, 1, 1], vector_set.find(1)
     assert_elements_in_delta [-1, -1, -1], vector_set.find(2)
     assert_elements_in_delta [100, 10.236221313476562, 0], vector_set.find(3)
-    assert_equal "int8", vector_set.info[:quant_type]
+    assert_equal "int8", vector_set.info["quant-type"]
   end
 
   def test_reduce

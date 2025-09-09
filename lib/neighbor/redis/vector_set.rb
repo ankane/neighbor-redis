@@ -56,7 +56,7 @@ module Neighbor
       end
 
       def info
-        hash_result(run_command("VINFO", key))&.transform_keys { |k| k.gsub("-", "_").to_sym }
+        hash_result(run_command("VINFO", key))
       end
 
       def dimensions

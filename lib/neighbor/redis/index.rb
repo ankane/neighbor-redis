@@ -112,8 +112,7 @@ module Neighbor
         false
       end
 
-      # TODO fix nested
-      # TODO symbolize keys?
+      # TODO fix nested for RESP2
       def info
         hash_result(run_command("FT.INFO", @index_name))
       end
