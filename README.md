@@ -187,14 +187,12 @@ index.search(vector, exact: true)
 
 ## Vector Indexes
 
-Create a vector index
+Create a vector index (`l2`, `inner_product`, or `cosine` distance)
 
 ```ruby
 index = Neighbor::Redis::HnswIndex.new(name, dimensions: 3, distance: "cosine")
 index.create
 ```
-
-Supports `l2`, `inner_product`, and `cosine` distance
 
 Store vectors as double precision (instead of single precision)
 
