@@ -192,7 +192,7 @@ index.search(vector, exact: true)
 Create a vector index
 
 ```ruby
-index = Neighbor::Redis::HnswIndex.new("items", dimensions: 3, distance: "cosine")
+index = Neighbor::Redis::HnswIndex.new(name, dimensions: 3, distance: "cosine")
 index.create
 ```
 
