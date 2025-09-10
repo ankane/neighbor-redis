@@ -42,13 +42,13 @@ index.add(2, [2, 2, 2])
 index.add(3, [1, 1, 2])
 ```
 
-Get the nearest neighbors to a vector
+Search for nearest neighbors to a vector
 
 ```ruby
 index.search([1, 1, 1], count: 5)
 ```
 
-Get the nearest neighbors to an item
+Search for nearest neighbors to an item
 
 ```ruby
 index.search_id(1, count: 5)
