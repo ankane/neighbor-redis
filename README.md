@@ -155,7 +155,7 @@ index.remove_metadata(id)
 - can support quantization and dimensionality reduction (SVS Vamana)
 - require calling `create` before adding items
 
-### Vector Sets
+## Vector Sets
 
 Create a vector set
 
@@ -189,7 +189,7 @@ Perform exact search
 index.search(vector, exact: true)
 ```
 
-### Vector Indexes
+## Vector Indexes
 
 Create a vector index
 
@@ -212,7 +212,7 @@ Store vectors as JSON (instead of a hash/blob)
 Neighbor::Redis::HnswIndex.new(name, redis_type: "json")
 ```
 
-#### Index Options
+### Index Options
 
 HNSW
 
