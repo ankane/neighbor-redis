@@ -34,7 +34,7 @@ Create an index
 index = Neighbor::Redis::VectorSet.new("items")
 ```
 
-Add items
+Add vectors
 
 ```ruby
 index.add(1, [1, 1, 1])
@@ -48,7 +48,7 @@ Search for nearest neighbors to a vector
 index.search([1, 1, 1], count: 5)
 ```
 
-Search for nearest neighbors to an item
+Search for nearest neighbors to a vector in the index
 
 ```ruby
 index.search_id(1, count: 5)
@@ -62,37 +62,37 @@ Neighbor::Redis::VectorSet.new("items", id_type: "integer")
 
 ## Operations
 
-Add or update an item
+Add or update a vector
 
 ```ruby
 index.add(id, vector)
 ```
 
-Add or update multiple items
+Add or update multiple vectors
 
 ```ruby
 index.add_all(ids, vectors)
 ```
 
-Get an item
+Get a vector
 
 ```ruby
 index.find(id)
 ```
 
-Remove an item
+Remove a vector
 
 ```ruby
 index.remove(id)
 ```
 
-Remove multiple items
+Remove multiple vectors
 
 ```ruby
 index.remove_all(ids)
 ```
 
-Count items
+Count vectors
 
 ```ruby
 index.count
@@ -100,19 +100,19 @@ index.count
 
 ## Metadata
 
-Add an item with metadata
+Add a vector with metadata
 
 ```ruby
 index.add(id, vector, metadata: {category: "A"})
 ```
 
-Add multiple items with metadata
+Add multiple vectors with metadata
 
 ```ruby
 index.add_all(ids, vectors, metadata: [{category: "A"}, {category: "B"}, ...])
 ```
 
-Get metadata for an item
+Get metadata for a vector
 
 ```ruby
 index.metadata(id)
@@ -153,7 +153,7 @@ index.remove_metadata(id)
 - support single or double-precision floats
 - support either exact (flat) or approximate (HNSW and SVS Vamana) search
 - can support quantization and dimensionality reduction (SVS Vamana)
-- require calling `create` before adding items
+- require calling `create` before adding vectors
 
 ## Vector Sets
 
