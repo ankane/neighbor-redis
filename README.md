@@ -122,8 +122,6 @@ Get metadata with search results
 
 ```ruby
 index.search(vector, with_metadata: true)
-# or
-index.search_id(id, with_metadata: true)
 ```
 
 Set metadata
