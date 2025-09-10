@@ -167,7 +167,7 @@ Specify parameters
 Neighbor::Redis::VectorSet.new(name, m: 16, ef_construction: 200, ef_search: 10)
 ```
 
-Use `int8` or `binary` quantization
+Use quantization (`int8` or `binary`)
 
 ```ruby
 Neighbor::Redis::VectorSet.new(name, quantization: "int8")
