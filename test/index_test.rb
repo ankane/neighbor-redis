@@ -99,6 +99,21 @@ class IndexTest < Minitest::Test
     assert_equal "expected 3 dimensions", error.message
   end
 
+  def test_add_before_create
+    index = Neighbor::Redis::HnswIndex.new("items", dimensions: 3, distance: "l2", id_type: "integer")
+    add_items(index)
+
+    error = assert_raises do
+      index.search([1, 1, 1])
+    end
+    assert_match(/no such index|Unknown Index name|not found/i, error.message)
+
+    index.create
+    result = wait_for_backfill { index.search([1, 1, 1]) }
+    assert_equal [1, 3, 2], result.map { |v| v[:id] }
+    assert_elements_in_delta [0, 1, 1.7320507764816284], result.map { |v| v[:distance] }
+  end
+
   def test_add_all
     index = create_index
     assert_equal [true, true], index.add_all([1, 2], [[1, 1, 1], [2, 2, 2]])
@@ -636,6 +651,16 @@ class IndexTest < Minitest::Test
       [1, 1, 2]
     ]
     index.add_all(ids, vectors)
+  end
+
+  def wait_for_backfill
+    result = nil
+    20.times do
+      result = yield
+      break if result.any?
+      sleep 0.01
+    end
+    result
   end
 
   def supports_svs_vamana?

@@ -151,7 +151,7 @@ index.remove_metadata(id)
 - support single or double-precision floats
 - support either exact (flat) or approximate (HNSW and SVS Vamana) search
 - can support quantization and dimensionality reduction (SVS Vamana)
-- require calling `create` before adding vectors
+- require calling `create` before searching
 
 ## Vector Sets
 
