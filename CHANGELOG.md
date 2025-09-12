@@ -1,4 +1,4 @@
-## 0.3.0 (unreleased)
+## 0.3.0 (2025-09-12)
 
 - Added support for vector sets
 - Added support for SVS Vamana indexes
