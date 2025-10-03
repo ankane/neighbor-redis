@@ -288,7 +288,7 @@ index.drop
 
 ## History
 
-View the [changelog](CHANGELOG.md)
+View the [changelog](https://github.com/ankane/neighbor-redis/blob/master/CHANGELOG.md)
 
 ## Contributing
 
