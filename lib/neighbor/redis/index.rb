@@ -204,6 +204,8 @@ module Neighbor
       end
 
       def find_in_batches(batch_size: 1000)
+        raise ArgumentError, "batch_size must be positive" if batch_size < 1
+
         cursor = 0
         prefix_length = nil
         items = []

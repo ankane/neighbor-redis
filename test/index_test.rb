@@ -204,6 +204,14 @@ class IndexTest < Minitest::Test
     assert_equal 2, batches.size
   end
 
+  def test_find_in_batches_batch_size
+    index = create_index
+    error = assert_raises(ArgumentError) do
+      index.find_in_batches(batch_size: 0)
+    end
+    assert_match "batch_size must be positive", error.message
+  end
+
   def test_metadata
     index = create_index
     index.add(1, [1, 1, 1], metadata: {category: "A"})
