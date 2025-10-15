@@ -180,7 +180,10 @@ class IndexTest < Minitest::Test
 
   def test_find_in_batches
     index = create_index
-    add_items(index)
+    index.add(1, [1, 1, 1], metadata: {category: "A"})
+    index.add(2, [-1, -1, -1], metadata: {category: "B"})
+    index.add(3, [1, 1, 0])
+
     batches = []
     index.find_in_batches(batch_size: 2) do |batch|
       batches << batch
@@ -190,7 +193,10 @@ class IndexTest < Minitest::Test
 
   def test_find_in_batches_json
     index = create_index(redis_type: "json")
-    add_items(index)
+    index.add(1, [1, 1, 1], metadata: {category: "A"})
+    index.add(2, [-1, -1, -1], metadata: {category: "B"})
+    index.add(3, [1, 1, 0])
+
     batches = []
     index.find_in_batches(batch_size: 2) do |batch|
       batches << batch
