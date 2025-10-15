@@ -203,6 +203,45 @@ module Neighbor
         end
       end
 
+      def find_in_batches(batch_size: 1000)
+        cursor = 0
+        prefix_length = nil
+        begin
+          cursor, keys = run_command("SCAN", cursor, "MATCH", "#{@prefix}*", "COUNT", batch_size)
+
+          items =
+            if @json
+              keys.filter_map do |key|
+                v = run_command("JSON.GET", key, "$")
+                if v
+                  prefix_length ||= find_prefix_length(key)
+                  attributes = JSON.parse(v)[0]
+                  {
+                    id: item_id(key[prefix_length..-1]),
+                    vector: attributes.delete("v"),
+                    attributes: attributes
+                  }
+                end
+              end
+            else
+              keys.filter_map do |key|
+                v = run_command("HGETALL", key)
+                if v
+                  prefix_length ||= find_prefix_length(key)
+                  {
+                    id: item_id(key[prefix_length..-1]),
+                    vector: from_binary(v.delete("v")),
+                    attributes: v
+                  }
+                end
+              end
+            end
+
+          # TODO always yield exact batch size
+          yield items if items.any?
+        end while cursor != "0"
+      end
+
       def metadata(id)
         key = item_key(id)
 

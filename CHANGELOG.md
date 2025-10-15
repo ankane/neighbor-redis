@@ -1,3 +1,7 @@
+## 0.3.1 (unreleased)
+
+- Added `find_in_batches` method to indexes
+
 ## 0.3.0 (2025-09-12)
 
 - Added support for vector sets
