@@ -206,10 +206,11 @@ module Neighbor
       def find_in_batches(batch_size: 1000)
         cursor = 0
         prefix_length = nil
+        items = []
         begin
           cursor, keys = run_command("SCAN", cursor, "MATCH", "#{@prefix}*", "COUNT", batch_size)
 
-          items =
+          new_items =
             if @json
               keys.filter_map do |key|
                 v = run_command("JSON.GET", key, "$")
@@ -237,9 +238,16 @@ module Neighbor
               end
             end
 
-          # TODO always yield exact batch size
-          yield items if items.any?
+          items.concat(new_items)
+
+          while items.size >= batch_size
+            yield items.shift(batch_size)
+          end
         end while cursor != "0"
+
+        yield items if items.any?
+
+        nil
       end
 
       def metadata(id)
