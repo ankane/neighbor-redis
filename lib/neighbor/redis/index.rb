@@ -219,7 +219,7 @@ module Neighbor
                   {
                     id: item_id(key[prefix_length..-1]),
                     vector: attributes.delete("v"),
-                    attributes: attributes
+                    metadata: attributes
                   }
                 end
               end
@@ -231,7 +231,7 @@ module Neighbor
                   {
                     id: item_id(key[prefix_length..-1]),
                     vector: from_binary(v.delete("v")),
-                    attributes: v
+                    metadata: v
                   }
                 end
               end
