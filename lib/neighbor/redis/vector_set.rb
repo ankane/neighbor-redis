@@ -238,7 +238,9 @@ module Neighbor
       def search_result(k, v, with_metadata: false)
         v, a = v if with_metadata
         value = {id: item_id(k), distance: 2 * (1 - v.to_f)}
-        value.merge!(metadata: a ? JSON.parse(a) : {}) if with_metadata
+        if with_metadata
+          value[:metadata] = a ? JSON.parse(a) : {}
+        end
         value
       end
 

@@ -119,7 +119,7 @@ module Neighbor
         else
           # for RESP2
           info = hash_result(info)
-          ["index_definition", "gc_stats" ,"cursor_stats", "dialect_stats", "Index Errors"].each do |k|
+          ["index_definition", "gc_stats", "cursor_stats", "dialect_stats", "Index Errors"].each do |k|
             info[k] = hash_result(info[k]) if info[k]
           end
           ["attributes", "field statistics"].each do |k|
