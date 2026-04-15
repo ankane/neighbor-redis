@@ -1,4 +1,4 @@
-## 0.3.1 (unreleased)
+## 0.3.1 (2026-04-15)
 
 - Added `find_in_batches` method to indexes
 
